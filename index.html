@@ -46,6 +46,7 @@ button{font-family:inherit;border:none;background:none;color:inherit;cursor:poin
 }
 #brandTitle{font-family:var(--font-d);font-size:20px;font-weight:700;letter-spacing:var(--title-ls)}
 #brandDate{font-family:var(--font-n);font-size:11px;opacity:.6;margin-top:2px;letter-spacing:.08em}
+#brandWeek::before{content:" · "}
 #themeToggle{
   font-size:13px;padding:8px 14px;border:1px solid var(--line);border-radius:var(--pill);
   background:var(--panel);color:var(--fg);
@@ -90,6 +91,7 @@ button{font-family:inherit;border:none;background:none;color:inherit;cursor:poin
   background:var(--topbar);color:var(--on-topbar);border-top:1px solid var(--line);z-index:1}
 .tt-bar i{width:7px;height:7px;border-radius:2px;background:var(--ico);opacity:.8}
 .tt-bar i:first-child{background:var(--accent);opacity:1}
+.tt[data-topbar="split"] .tt-top{background-image:linear-gradient(90deg,transparent 58%,var(--on-topbar) 58% calc(58% + 1.5px),transparent calc(58% + 1.5px) 80%,var(--on-topbar) 80% calc(80% + 1.5px),transparent calc(80% + 1.5px));font-size:10px}
 .tt[data-topbar="float"] .tt-top{left:5px;right:5px;top:5px;border:1px solid var(--line);border-radius:min(var(--radius),6px)}
 .tt[data-toolbar="pill"] .tt-bar{left:12px;right:12px;bottom:5px;border:1px solid var(--line);border-radius:var(--pill)}
 .tt[data-toolbar="blocks"] .tt-bar{justify-content:space-evenly}
@@ -183,10 +185,20 @@ body.capturing .leaflet-control-container{display:none}
 
 /* ============ 布局变体 ============
  * 主题通过 layout.topbar / layout.toolbar / layout.modal 选用；新主题优先组合已有变体。
- * topbar:  bar（整条） | float（悬浮卡片）
+ * topbar:  bar（整条） | float（悬浮卡片） | split（标题/日期/按钮分格，分隔线 --split-line）
  * toolbar: dock（底部整条） | pill（悬浮胶囊） | blocks（硬边方块）
  * modal:   sheet（底部弹出） | dialog（居中卡片）
  */
+[data-topbar="split"] #topbar{display:grid;grid-template-columns:1fr auto auto;align-items:stretch;padding:env(safe-area-inset-top) 0 0}
+[data-topbar="split"] #brand{display:contents}
+[data-topbar="split"] #brandTitle,[data-topbar="split"] #brandDate{display:flex;flex-direction:column;justify-content:center;padding:10px 14px;margin:0}
+[data-topbar="split"] #brandDate{border-left:var(--split-line,2px solid currentColor);line-height:1.4}
+[data-topbar="split"] #brandWeek::before{content:none}
+[data-topbar="split"] #themeToggle{border:none;border-left:var(--split-line,2px solid currentColor);border-radius:0;padding:0 14px;background:transparent;color:inherit;white-space:nowrap}
+@media (max-width:360px){
+  [data-topbar="split"] #brandTitle,[data-topbar="split"] #brandDate,[data-topbar="split"] #themeToggle{padding-left:10px;padding-right:10px}
+  [data-topbar="split"] .tg-emoji{display:none}
+}
 [data-topbar="float"] #topbar{
   position:absolute;left:10px;right:10px;top:calc(8px + env(safe-area-inset-top));
   padding:8px 8px 8px 14px;border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 6px 22px rgba(0,0,0,.12);
@@ -224,6 +236,10 @@ body.capturing .leaflet-control-container{display:none}
 .exp-card .ec-map{margin:0 72px;height:520px;overflow:hidden;position:relative;border-radius:18px}
 .exp-card .ec-map img{width:100%;height:100%;object-fit:cover;display:block}
 .exp-card .ec-map svg{width:100%;height:100%;display:block}
+/* .ec-map 是主题外框（可加边框/内边距），.ec-map-in 是实际图面，地图图片按它的尺寸渲染 */
+.exp-card .ec-map-in{position:relative;width:100%;height:100%;overflow:hidden;border-radius:inherit}
+.exp-card .ec-map-empty{display:flex;align-items:center;justify-content:center;text-align:center;padding:0 40px;background:#00000008;font-size:28px;opacity:.6}
+.exp-card .ec-no{display:none}
 .exp-card .ec-mk{position:absolute;width:0;height:0}
 /* 用负偏移居中、transform 只做缩放：html2canvas 对 translate(-50%) 与 scale 组合的处理有偏差 */
 .exp-card .ec-mk>div{position:absolute;transform:scale(1.5)}
@@ -245,8 +261,32 @@ body.capturing .leaflet-control-container{display:none}
 [contenteditable]{outline:none;border-bottom:2px dashed transparent}
 [contenteditable]:focus{border-bottom-color:currentColor}
 
-/* ---- 主题：奶油胶片 cream ---- */
+/* ---- 主题：奶油胶片 cream ----
+ * 胶片齿孔做边（顶栏、弹窗、导出地图），照片按相纸叠放，工具栏为悬浮胶囊。 */
+body[data-theme="cream"]{--film:#3E3A32;
+  --film-holes:repeating-linear-gradient(90deg,transparent 0 7px,#FAF6EF 7px 15px,transparent 15px 22px)}
+body[data-theme="cream"] #topbar{padding-bottom:22px}
+body[data-theme="cream"] #topbar::after,body[data-theme="cream"] .modal::before{
+  content:"";position:absolute;left:0;right:0;height:12px;
+  background:var(--film-holes) center/100% 5px no-repeat,var(--film)}
+body[data-theme="cream"] #topbar::after{bottom:0}
+body[data-theme="cream"] #toolbar{background:#FFFDF8;box-shadow:0 10px 30px rgba(62,58,50,.18)}
+body[data-theme="cream"] .tool-btn{font-family:var(--font-n);font-weight:700;letter-spacing:.04em}
+body[data-theme="cream"] #recHud .hud-txt::before{content:"REC ";color:#E5484D;font-weight:700}
+body[data-theme="cream"] .modal{position:relative;padding-top:32px}
+body[data-theme="cream"] .modal::before{top:0}
+body[data-theme="cream"] .modal h3{font-weight:700}
+/* 照片预览：拍立得相纸，身后再叠一张 */
+body[data-theme="cream"] #pinImgPreview{width:calc(100% - 28px);margin:12px 14px 8px 6px;border:8px solid #fff;border-bottom-width:30px;border-radius:2px;
+  transform:rotate(-1.2deg);box-shadow:12px -8px 0 -3px #F1EBDF,12px -8px 0 -2px rgba(62,58,50,.16),0 6px 16px rgba(62,58,50,.2)}
 .card-t1{--card-bg:#FAF6EF;--card-fg:#3E3A32;font-family:"Noto Serif SC","Noto Sans SC",serif}
+.card-t1 .ec-map{height:624px;padding:52px 20px;background:#2B2722;border-radius:6px}
+.card-t1 .ec-map::before,.card-t1 .ec-map::after{content:"";position:absolute;left:0;right:0;height:14px;
+  background:repeating-linear-gradient(90deg,transparent 0 16px,#F4EEE2 16px 36px,transparent 36px 52px) center/100% 14px no-repeat}
+.card-t1 .ec-map::before{top:14px}.card-t1 .ec-map::after{bottom:8px}
+.card-t1 .ec-map-in{border-radius:3px}
+.card-t1 .ec-edge{position:absolute;left:24px;right:24px;bottom:26px;display:flex;justify-content:space-between;
+  font:700 17px/20px "Courier Prime",ui-monospace,monospace;letter-spacing:.32em;color:#E0A04A}
 .card-t1 .ec-date{font-family:"Fraunces","Noto Serif SC",Georgia,serif}
 .card-t1 .ec-deco{font-family:"Courier Prime",ui-monospace,monospace}
 .card-t1 .ec-stat b{font-family:"Courier Prime",ui-monospace,monospace}
@@ -254,7 +294,10 @@ body.capturing .leaflet-control-container{display:none}
   background-image:repeating-linear-gradient(90deg,#3E3A32 0 26px,transparent 26px 52px);
   background-size:52px 14px;background-repeat:repeat-x;background-position:center;opacity:.8}
 .card-t1::before{top:0}.card-t1::after{bottom:0}
-.card-t1 .ec-pin img{border:10px solid #fff;box-shadow:0 4px 14px rgba(0,0,0,.15)}
+.card-t1 .ec-pin{gap:44px;margin-bottom:40px}
+.card-t1 .ec-pin img{width:220px;height:244px;border:12px solid #fff;border-bottom-width:40px;transform:rotate(-2deg);
+  box-shadow:16px 10px 0 -4px #EFE8DA,16px 10px 0 -3px rgba(62,58,50,.18),0 6px 16px rgba(0,0,0,.16)}
+.card-t1 .ec-pin:nth-child(even) img{transform:rotate(1.6deg)}
 .card-t1 .grain{position:absolute;inset:0;pointer-events:none;opacity:.5;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E")}
 
@@ -269,11 +312,36 @@ body.capturing .leaflet-control-container{display:none}
 .card-t2 .ec-stat span{letter-spacing:.4em}
 .card-t2 .ec-pin img{border:1px solid #C6A15B66}
 
-/* ---- 主题：瑞士粗野主义 brutalist（禁圆角/阴影/渐变） ---- */
-body[data-theme="brutalist"] #themeToggle{border:2px solid #F4F4F0;background:#0A0A09;color:#F4F4F0}
-.card-t3{--card-bg:#F4F4F0;--card-fg:#0A0A09;font-family:"Inter Tight","Noto Sans SC",system-ui,sans-serif}
+/* ---- 主题：瑞士粗野主义 brutalist（禁圆角/阴影/渐变） ----
+ * 分格顶栏、编号方块工具栏、大字号；地图叠 12 栏网格，弹窗为粗框居中卡片。 */
+body[data-theme="brutalist"]{--split-line:2px solid #F4F4F0}
+body[data-theme="brutalist"] #brandTitle{font-size:28px;line-height:1}
+@media (max-width:360px){body[data-theme="brutalist"] #brandTitle{font-size:22px}}
+body[data-theme="brutalist"] #brandDate{opacity:1;font-weight:700;letter-spacing:.12em}
+body[data-theme="brutalist"] #themeToggle{background:#E61919;color:#fff;font-weight:700;letter-spacing:.06em;border-left:none}
+body[data-theme="brutalist"] #mapWrap::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:repeating-linear-gradient(90deg,rgba(10,10,9,.07) 0 1px,transparent 1px calc(100% / 12))}
+body[data-theme="brutalist"] #toolbar{counter-reset:tb}
+body[data-theme="brutalist"] .tool-btn{counter-increment:tb;position:relative;align-items:flex-start;padding:8px 10px;
+  font-size:12px;font-weight:700;letter-spacing:.04em}
+body[data-theme="brutalist"] .tool-btn::before{content:counter(tb,decimal-leading-zero);position:absolute;top:7px;right:8px;font-size:10px;opacity:.65}
+body[data-theme="brutalist"] .hud{background:#0A0A09;color:#F4F4F0;border:none;box-shadow:none;padding:0 0 0 14px;gap:12px}
+body[data-theme="brutalist"] .hud .rec-dot{border-radius:0;background:#E61919}
+body[data-theme="brutalist"] .hud .hud-txt{font-size:16px;font-weight:700}
+body[data-theme="brutalist"] .hud button{background:#E61919;color:#fff;padding:14px 16px;font-weight:700}
+body[data-theme="brutalist"] .hud button.ghost{background:transparent;color:#F4F4F0;border:none;border-left:2px solid #F4F4F0}
+body[data-theme="brutalist"] .modal{border:4px solid #0A0A09}
+body[data-theme="brutalist"] .modal h3{font-size:26px;line-height:1.1;border-bottom:4px solid #0A0A09;padding-bottom:12px}
+body[data-theme="brutalist"] .modal label{color:#0A0A09;font-weight:700;letter-spacing:.14em}
+body[data-theme="brutalist"] .modal input[type=text],body[data-theme="brutalist"] .modal textarea{border:2px solid #0A0A09;background:#fff}
+body[data-theme="brutalist"] .photo-btn{border:2px dashed #0A0A09}
+body[data-theme="brutalist"] .btn{font-family:var(--font-d);font-weight:400;letter-spacing:.03em}
+body[data-theme="brutalist"] .btn.ghost{border:2px solid #0A0A09}
+body[data-theme="brutalist"] .btn.danger{background:#E61919}
+.card-t3{--card-bg:#F4F4F0;--card-fg:#0A0A09;font-family:"Inter Tight","Noto Sans SC",system-ui,sans-serif;
+  background-image:repeating-linear-gradient(90deg,rgba(10,10,9,.06) 0 2px,transparent 2px 78px);background-position:72px 0}
 .card-t3 .ec-head{background:#0A0A09;color:#F4F4F0;padding:36px 72px}
-.card-t3 .ec-date{font-family:"Archivo Black","Noto Sans SC",sans-serif;font-size:80px;line-height:1;letter-spacing:-.02em;white-space:nowrap}
+.card-t3 .ec-date{font-family:"Archivo Black","Noto Sans SC",sans-serif;font-size:96px;line-height:1;letter-spacing:-.02em;white-space:nowrap}
 .card-t3 .ec-deco{font-size:26px;letter-spacing:.14em;margin-top:18px}
 .card-t3 .ec-map{margin:36px 72px 0;border:4px solid #0A0A09;border-radius:0;height:470px}
 .card-t3 .ec-stats{margin:36px 72px 0;border:none;display:flex}
@@ -282,7 +350,14 @@ body[data-theme="brutalist"] #themeToggle{border:2px solid #F4F4F0;background:#0
 .card-t3 .ec-stat b{font-family:"Archivo Black","Noto Sans SC",sans-serif;font-size:50px;color:#E61919;line-height:1.1;white-space:nowrap}
 .card-t3 .ec-stat span{font-size:22px;letter-spacing:.18em}
 .card-t3 .ec-pins{margin:36px 72px 0}
-.card-t3 .ec-pin img{border-radius:0;border:4px solid #0A0A09}
+.card-t3 .ec-pin{display:grid;grid-template-columns:110px 1fr 200px;gap:0 28px;align-items:start;
+  border-top:4px solid #0A0A09;padding-top:24px;margin-bottom:28px}
+.card-t3 .ec-pin.no-img{grid-template-columns:110px 1fr}
+.card-t3 .ec-no{display:block;grid-column:1;grid-row:1;font-family:"Archivo Black",sans-serif;font-size:76px;line-height:.85;color:#E61919}
+.card-t3 .ec-pin .t{grid-column:2;grid-row:1}
+.card-t3 .ec-pin .t b{font-family:"Archivo Black","Noto Sans SC",sans-serif;font-weight:400;font-size:36px;line-height:1.15}
+.card-t3 .ec-idx{display:none}
+.card-t3 .ec-pin img{grid-column:3;grid-row:1;border-radius:0;border:4px solid #0A0A09}
 .card-t3 .ec-cta{background:#E61919;color:#fff;font-family:"Archivo Black","Noto Sans SC",sans-serif;
   font-size:34px;text-align:center;padding:26px;margin:36px 72px 0;letter-spacing:.04em}
 .card-t3 .ec-foot{background:#0A0A09;color:#F4F4F0;padding:22px 72px;margin-top:36px;font-size:22px;opacity:1}
@@ -377,11 +452,11 @@ body[data-theme="playful"] #btnExport .ico{color:#118AB2}
 <body data-theme="cream" data-topbar="bar" data-toolbar="dock" data-modal="sheet">
 <div id="app">
   <header id="topbar">
-    <div>
+    <div id="brand">
       <div id="brandTitle">Daymark</div>
-      <div id="brandDate"></div>
+      <div id="brandDate"><span id="brandDay"></span><span id="brandWeek"></span></div>
     </div>
-    <button id="themeToggle" aria-expanded="false" aria-controls="themeGallery">🎨 换风格</button>
+    <button id="themeToggle" aria-expanded="false" aria-controls="themeGallery"><span class="tg-emoji" aria-hidden="true">🎨 </span>换风格</button>
   </header>
   <section id="themeGallery" aria-label="主题画廊">
     <div class="tg-cats" id="tgCats" role="group" aria-label="主题分类"></div>
@@ -570,7 +645,7 @@ const photoStore={
  * 主题 id 会写进用户存储，发布后不要改名；确需改名时在 THEME_ALIASES 里登记旧 id。
  */
 const OSM_TILE="https://tile.openstreetmap.org/{z}/{x}/{y}.png";
-const LAYOUTS={topbar:["bar","float"],toolbar:["dock","pill","blocks"],modal:["sheet","dialog"]};
+const LAYOUTS={topbar:["bar","float","split"],toolbar:["dock","pill","blocks"],modal:["sheet","dialog"]};
 const THEME_ALIASES={};
 const THEME_DEFAULTS={
   name:"",category:"其他",desc:"",
@@ -585,7 +660,7 @@ const THEME_DEFAULTS={
     marker:{font:null,
       pin:{size:"34px",fontSize:"15px",weight:"800",radius:"50%",bg:"#FFFFFF",fg:"#333333",border:"2px solid #333333",shadow:"none"},
       se:{size:"36px",fontSize:"16px",weight:"800",radius:"50%",bg:"#333333",fg:"#FFFFFF",border:"none",shadow:"none"}}},
-  card:{cls:"card-t1",head:"rule",deco:"good day",tape:false,grain:false,cta:""},
+  card:{cls:"card-t1",head:"rule",deco:"good day",tape:false,grain:false,cta:"",mapLabel:""},
   motion:{dur:".25s",ease:"ease"}
 };
 function defineTheme(t){
@@ -595,13 +670,15 @@ function defineTheme(t){
   return th;
 }
 const THEMES=[
- {id:"cream",name:"奶油胶片",category:"复古",desc:"暖白胶片与蓝灰路线",
-  palette:{bg:"#FAF6EF",fg:"#3E3A32",muted:"#A39E93",accent:"#7E9BB3",panel:"#FFFDF8",line:"rgba(62,58,50,.12)"},
+ {id:"cream",name:"奶油胶片",category:"复古",desc:"胶片齿孔与相纸叠层",
+  palette:{bg:"#FAF6EF",fg:"#3E3A32",muted:"#87816F",accent:"#6A879F",panel:"#FFFDF8",line:"rgba(62,58,50,.12)"},
+  shape:{radius:"16px",control:"999px",topbarBorder:"none"},
+  layout:{toolbar:"pill"},
   map:{tileOpacity:.28,tileFilter:"sepia(.28) saturate(.7) brightness(1.12)",
     route:{color:"#7E9BB3",casing:"#FFFFFF",weight:7,casingW:14,innerDash:true},
-    marker:{pin:{bg:"#FFFDF8",fg:"#4E6B7E",border:"2.5px solid #7E9BB3",shadow:"0 2px 8px rgba(0,0,0,.25)"},
-      se:{bg:"#7E9BB3",fg:"#FFFFFF",border:"2.5px solid #FFFFFF",shadow:"0 2px 8px rgba(0,0,0,.3)"}}},
-  card:{cls:"card-t1",grain:true}},
+    marker:{pin:{bg:"#FFFDF8",fg:"#4E6B7E",border:"2.5px solid #6A879F",shadow:"0 2px 8px rgba(0,0,0,.25)"},
+      se:{bg:"#6A879F",fg:"#FFFFFF",border:"2.5px solid #FFFFFF",shadow:"0 2px 8px rgba(0,0,0,.3)"}}},
+  card:{cls:"card-t1",grain:true,mapLabel:"DAYMARK 400"},motion:{dur:".3s"}},
  {id:"blackgold",name:"黑金轻奢",category:"夜间",desc:"夜色底与金线",
   palette:{bg:"#0B0B0C",fg:"#F5F1E8",muted:"#8A7F6A",accent:"#C6A15B",onAccent:"#0B0B0C",panel:"#161617",line:"rgba(198,161,91,.25)",icon:"#C6A15B"},
   typography:{display:'"Cormorant Garamond","Noto Serif SC",Georgia,serif',body:'"Noto Serif SC","Noto Sans SC",system-ui,serif',num:'"Cormorant Garamond",Georgia,serif'},
@@ -615,7 +692,7 @@ const THEMES=[
   palette:{bg:"#F4F4F0",fg:"#0A0A09",muted:"#6E6E6A",accent:"#E61919",topbar:"#0A0A09",onTopbar:"#F4F4F0",panel:"#F4F4F0",line:"rgba(10,10,9,.9)"},
   typography:{display:'"Archivo Black","Noto Sans SC",sans-serif',body:'"Inter Tight","Noto Sans SC",system-ui,sans-serif',num:'"Inter Tight",ui-monospace,monospace',titleSpacing:"-.02em"},
   shape:{radius:"0px",control:"0px",pill:"0px",topbarBorder:"4px solid #0A0A09"},
-  layout:{toolbar:"blocks"},
+  layout:{topbar:"split",toolbar:"blocks",modal:"dialog"},
   map:{tileOpacity:.3,tileFilter:"grayscale(1) contrast(1.05) brightness(1.12)",
     route:{color:"#E61919",casing:"#0A0A09",weight:9,casingW:17},
     marker:{font:'"Archivo Black","Noto Sans SC",sans-serif',
@@ -1109,9 +1186,9 @@ async function buildCardData(){
  * 按路线与地点重新取景，尺寸与该主题卡片的地图区一致；标记返回为百分比坐标，由卡片用 HTML 叠加。 */
 function cardMapBox(cls){
   const probe=document.createElement("div");
-  probe.className="exp-card "+cls;probe.innerHTML='<div class="ec-map"></div>';
+  probe.className="exp-card "+cls;probe.innerHTML='<div class="ec-map"><div class="ec-map-in"></div></div>';
   $("cardStage").appendChild(probe);
-  const m=probe.firstChild,box={w:m.clientWidth||936,h:m.clientHeight||520};   // 不含边框，与图片实际显示尺寸一致
+  const m=probe.querySelector(".ec-map-in"),box={w:m.clientWidth||936,h:m.clientHeight||520};   // 内层尺寸，不含主题给 .ec-map 加的边框/内边距
   probe.remove();return box;
 }
 function loadTileImg(src){
@@ -1243,27 +1320,28 @@ function cardHTML(d){
   }else{
     head='<div class="ec-head">'+date+deco+'<div class="ec-rule"></div></div>';
   }
-  let mapHtml;
+  const empty=t=>'<div class="ec-map-in ec-map-empty">'+t+'</div>';
+  let mapIn;
   if(d.routeOnly){
-    mapHtml=d.routeSVG
-      ?'<div class="ec-map">'+d.routeSVG+'</div>'
-      :'<div class="ec-map" style="display:flex;align-items:center;justify-content:center;background:#00000008;font-size:28px;opacity:.6">还没有路线，开始记录后这里会显示你的轨迹</div>';
+    mapIn=d.routeSVG?'<div class="ec-map-in">'+d.routeSVG+'</div>':empty("还没有路线，开始记录后这里会显示你的轨迹");
   }else{
-    mapHtml=d.mapShot
-      ?'<div class="ec-map"><img src="'+d.mapShot+'" alt="路线图">'
+    mapIn=d.mapShot
+      ?'<div class="ec-map-in"><img src="'+d.mapShot+'" alt="路线图">'
         +d.mapMarks.map(m=>'<span class="ec-mk" style="left:'+m.x.toFixed(2)+'%;top:'+m.y.toFixed(2)+'%"><div class="'+m.cls+'">'+m.txt+'</div></span>').join("")
         +'</div>'
-      :'<div class="ec-map" style="display:flex;align-items:center;justify-content:center;background:#00000010;font-size:28px;opacity:.6">地图截图失败，可直接截屏保存</div>';
+      :empty("地图截图失败，可直接截屏保存");
   }
+  const mapHtml='<div class="ec-map">'+mapIn+(c.mapLabel?'<div class="ec-edge"><span>'+esc(c.mapLabel)+'</span><span>▸ '+String(d.pins.length).padStart(2,"0")+'A</span></div>':"")+'</div>';
   const stats='<div class="ec-stats">'
     +'<div class="ec-stat"><b>'+esc(d.km)+'</b><span>里程 KM</span></div>'
     +'<div class="ec-stat"><b>'+esc(d.dur)+'</b><span>用时 TIME</span></div>'
     +'<div class="ec-stat"><b>'+d.pins.length+'</b><span>打卡 SPOTS</span></div></div>';
   let pinsHtml='<div class="ec-pins">';
   d.pins.forEach((p,i)=>{
-    pinsHtml+='<div class="ec-pin">'+(c.tape?'<div class="ec-tape"></div>':"")
+    pinsHtml+='<div class="ec-pin'+(p._img?"":" no-img")+'">'+(c.tape?'<div class="ec-tape"></div>':"")
+      +'<span class="ec-no">'+String(i+1).padStart(2,"0")+'</span>'
       +(p._img?'<img src="'+p._img+'" alt="打卡照片">':"")
-      +'<div class="t"><b>'+(i+1)+". "+esc(p.name||"第"+(i+1)+"站")+'</b>'
+      +'<div class="t"><b><span class="ec-idx">'+(i+1)+'. </span>'+esc(p.name||"第"+(i+1)+"站")+'</b>'
       +(p.text?'<p>'+esc(p.text)+'</p>':"")
       +'<small>'+pinTimeStr(p.createdAt)+'</small></div></div>';
   });
@@ -1349,7 +1427,8 @@ const QA_SCENES={
   noroute:    {route:false,pins:"photos"},             // 无路线
   empty:      {route:false,pins:"none"},               // 全空
   recording:  {route:true, pins:"plain",recording:true},
-  pin:        {route:true, pins:"long",open:"pin"},     // 地点编辑弹窗
+  pin:        {route:true, pins:"long",open:"pin"},     // 地点编辑弹窗（长文本）
+  pinphoto:   {route:true, pins:"photos",open:"pin"},   // 地点编辑弹窗（有照片）
   clear:      {route:true, pins:"plain",open:"clear"},
   gallery:    {route:true, pins:"photos",open:"gallery"},
   export:     {route:true, pins:"photos",open:"export"},
@@ -1482,7 +1561,8 @@ async function init(){
     }
     photoStore.open();
   }
-  $("brandDate").textContent=fmtDate(new Date())+" · "+["周日","周一","周二","周三","周四","周五","周六"][new Date().getDay()];
+  $("brandDay").textContent=fmtDate(new Date());
+  $("brandWeek").textContent=["周日","周一","周二","周三","周四","周五","周六"][new Date().getDay()];
   buildGallery();
   bindEvents();
   applyTheme(state.theme,false);   // 先套主题，地图加载失败也不影响界面
