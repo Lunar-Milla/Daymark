@@ -66,14 +66,14 @@
 - [x] 第一阶段：验收模式与截图脚本。场景：full、long、nophoto、noroute、empty、recording、pin、clear、gallery、export、exportroute；视口：phone、narrow、landscape、wide。
 - [x] 顺带修复：粗野主义顶栏标题与工具栏文字黑底黑字不可见；切换主题时未声明的变量（如圆角）残留上一个主题的值；黑金/插画激活态图标与背景同色；地图加载失败时主题不生效；有存档时打开页面直接定位到已有路线。
 
+- [x] 导出图地图改为自绘 canvas（`renderMapImage`）：按路线与地点重新取景，尺寸与该主题卡片地图区一致；瓦片用 `ctx.filter` 套主题滤镜；路线按主题样式绘制；起终点与地点标记用与地图相同的 HTML 标记叠加。瓦片跨域失败时退回原 html2canvas 截图。原版问题：导出底图丢失主题滤镜，路线只截到一部分、瓦片缺块。
+
 ### 已知问题（待处理）
 
-- **导出图地图截图不可靠**（原版即存在）：html2canvas 不支持 CSS filter，导出的底图丢失主题滤镜；Leaflet 平移后的图层偏移导致路线只截到一部分、瓦片缺块。建议改为自绘 canvas：按当前视野绘制已加载瓦片（`crossOrigin` + `ctx.filter` 应用主题滤镜），再用 `latLngToContainerPoint` 绘制路线与标记。应在第二阶段逐款验收 PNG 之前完成。
 - 主题检查提示的对比度问题：奶油胶片 accent 上的白字（2.91）、奶油胶片与插画的 muted 文字（2.6–2.7），在第二阶段调整配色时处理。
 - 刷新页面后不会恢复进行中的录制（`recording/paused/pausedMs` 未持久化，暂停时长丢失会让用时偏大）。
 - 一次性加载 11 个 Google Fonts 字体族；新增主题前改为按主题懒加载 `typography` 所需字体。
 
 ### 下一步
 
-1. 修复导出地图截图（见上）。
-2. 第二阶段：每批两款升级现有主题，给它们分配不同的布局变体，并用 `tools/qa-shots.mjs` 做完整验收。
+1. 第二阶段：每批两款升级现有主题，给它们分配不同的布局变体，并用 `tools/qa-shots.mjs` 做完整验收。

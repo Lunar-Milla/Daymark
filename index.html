@@ -224,6 +224,11 @@ body.capturing .leaflet-control-container{display:none}
 .exp-card .ec-map{margin:0 72px;height:520px;overflow:hidden;position:relative;border-radius:18px}
 .exp-card .ec-map img{width:100%;height:100%;object-fit:cover;display:block}
 .exp-card .ec-map svg{width:100%;height:100%;display:block}
+.exp-card .ec-mk{position:absolute;width:0;height:0}
+/* 用负偏移居中、transform 只做缩放：html2canvas 对 translate(-50%) 与 scale 组合的处理有偏差 */
+.exp-card .ec-mk>div{position:absolute;transform:scale(1.5)}
+.exp-card .ec-mk>.mkb-pin{left:calc(var(--mkp-size) / -2);top:calc(var(--mkp-size) / -2)}
+.exp-card .ec-mk>.mkb-se{left:calc(var(--mks-size) / -2);top:calc(var(--mks-size) / -2)}
 .exp-card .ec-stats{display:flex;margin:36px 72px 0;border-top:2px solid currentColor;border-bottom:2px solid currentColor}
 .exp-card .ec-stat{flex:1;padding:22px 0;text-align:center}
 .exp-card .ec-stat+.ec-stat{border-left:1px solid currentColor}
@@ -750,7 +755,7 @@ function fitToContent(){
 function setTiles(th){
   if(!map)return;
   if(tileLayer)map.removeLayer(tileLayer);
-  tileLayer=L.tileLayer(th.map.tile,{maxZoom:19,
+  tileLayer=L.tileLayer(th.map.tile,{maxZoom:19,crossOrigin:true,
     attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
   const c=tileLayer.getContainer();
   c.style.opacity=th.map.tileOpacity;c.style.filter=th.map.tileFilter;
@@ -1076,25 +1081,104 @@ function clearRouteOnly(){
 function pinTimeStr(ts){const d=new Date(ts);return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");}
 async function buildCardData(){
   const th=themeById(state.theme);
-  let mapShot=null,routeSVG=null;
+  let mapShot=null,mapMarks=[],routeSVG=null;
   if(exportRouteOnly){
     routeSVG=buildRouteSVG(th);
   }else{
-    document.body.classList.add("capturing");
-    try{
-      if(window.html2canvas){
-        const c=await html2canvas($("map"),{useCORS:true,logging:false,backgroundColor:"#e8e4da"});
-        mapShot=c.toDataURL("image/png");
-      }
-    }catch(e){mapShot=null;}
-    document.body.classList.remove("capturing");
+    try{const r=await renderMapImage(th);if(r){mapShot=r.src;mapMarks=r.marks;}}catch(e){mapShot=null;}
+    /* 兜底：瓦片跨域失败等情况下退回整块截图（无主题滤镜） */
+    if(!mapShot){
+      document.body.classList.add("capturing");
+      try{
+        if(window.html2canvas){
+          const c=await html2canvas($("map"),{useCORS:true,logging:false,backgroundColor:"#e8e4da"});
+          mapShot=c.toDataURL("image/png");
+        }
+      }catch(e){mapShot=null;}
+      document.body.classList.remove("capturing");
+    }
   }
   const pins=sortedPins();
   for(const p of pins){p._img=p.photoId?await photoStore.get(p.photoId):null;}
-  return {th,mapShot,routeSVG,routeOnly:exportRouteOnly,pins,
+  return {th,mapShot,mapMarks,routeSVG,routeOnly:exportRouteOnly,pins,
     km:(routeDistanceM()/1000).toFixed(2),
     dur:fmtTime(routeDurationMs()),
     dateStr:fmtDate(new Date())};
+}
+/* 导出用地图：自绘 canvas。html2canvas 不支持 CSS filter，且截 Leaflet 平移后的图层会错位、缺块。
+ * 按路线与地点重新取景，尺寸与该主题卡片的地图区一致；标记返回为百分比坐标，由卡片用 HTML 叠加。 */
+function cardMapBox(cls){
+  const probe=document.createElement("div");
+  probe.className="exp-card "+cls;probe.innerHTML='<div class="ec-map"></div>';
+  $("cardStage").appendChild(probe);
+  const m=probe.firstChild,box={w:m.clientWidth||936,h:m.clientHeight||520};   // 不含边框，与图片实际显示尺寸一致
+  probe.remove();return box;
+}
+function loadTileImg(src){
+  return new Promise(res=>{
+    const img=new Image(),tm=setTimeout(()=>res(null),8000);
+    img.crossOrigin="anonymous";
+    img.onload=()=>{clearTimeout(tm);res(img);};
+    img.onerror=()=>{clearTimeout(tm);res(null);};
+    img.src=src;
+  });
+}
+function drawRouteCanvas(g,th,pts,s){
+  if(pts.length<2)return;
+  const r=th.map.route;
+  g.lineCap="round";g.lineJoin="round";
+  const stroke=(seg,color,w,alpha,dash)=>{
+    g.beginPath();seg.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));
+    g.strokeStyle=color;g.lineWidth=w*s;g.globalAlpha=alpha;g.setLineDash(dash||[]);g.stroke();
+  };
+  if(r.ink){
+    for(let i=0;i<pts.length-1;i+=4){
+      const seg=pts.slice(i,i+5);if(seg.length<2)continue;
+      const w=6+Math.round(8*Math.abs(Math.sin(i*1.7)));
+      stroke(seg,th.palette.bg,w+6,.85);stroke(seg,th.palette.fg,w,.9);
+    }
+  }else{
+    stroke(pts,r.casing,r.casingW,.95);stroke(pts,r.color,r.weight,1);
+    if(r.innerDash)stroke(pts,"#FFFFFF",2.2,.9,[9*s,8*s]);
+  }
+  g.globalAlpha=1;g.setLineDash([]);
+}
+async function renderMapImage(th){
+  if(!map)return null;
+  const {w:W,h:H}=cardMapBox(th.card.cls),PAD=.14,Z0=10;
+  const pts=state.route.concat(state.pins).map(p=>[p.lat,p.lng]);
+  const bounds=pts.length?L.latLngBounds(pts):map.getBounds();
+  const a=map.project(bounds.getNorthWest(),Z0),b=map.project(bounds.getSouthEast(),Z0);
+  const dx=b.x-a.x,dy=b.y-a.y;
+  let fit=dx>1e-6||dy>1e-6
+    ?Z0+Math.log2(Math.min(W*(1-2*PAD)/Math.max(dx,1e-6),H*(1-2*PAD)/Math.max(dy,1e-6)))
+    :16;
+  if(!pts.length)fit=map.getZoom();
+  fit=clamp(fit,2,17);
+  const z=Math.round(fit),k=Math.pow(2,fit-z);
+  const c=map.project(bounds.getCenter(),z),ox=c.x-W/2/k,oy=c.y-H/2/k,n=1<<z;
+  /* 先以不透明方式拼瓦片，再整体叠透明度与滤镜，避免缝隙处叠色 */
+  const tiles=document.createElement("canvas");tiles.width=W;tiles.height=H;
+  const tg=tiles.getContext("2d"),jobs=[];
+  for(let tx=Math.floor(ox/256);tx<=Math.floor((ox+W/k)/256);tx++){
+    for(let ty=Math.max(0,Math.floor(oy/256));ty<=Math.min(n-1,Math.floor((oy+H/k)/256));ty++){
+      const url=L.Util.template(th.map.tile,{s:"a",r:"",z,x:((tx%n)+n)%n,y:ty});
+      jobs.push(loadTileImg(url).then(img=>{
+        if(img)tg.drawImage(img,Math.floor((tx*256-ox)*k),Math.floor((ty*256-oy)*k),Math.ceil(256*k)+1,Math.ceil(256*k)+1);
+      }));
+    }
+  }
+  await Promise.all(jobs);
+  const cv=document.createElement("canvas");cv.width=W;cv.height=H;
+  const g=cv.getContext("2d");
+  g.fillStyle=th.map.bg;g.fillRect(0,0,W,H);
+  g.save();g.globalAlpha=th.map.tileOpacity;g.filter=th.map.tileFilter;g.drawImage(tiles,0,0);g.restore();
+  const P=p=>{const q=map.project([p.lat,p.lng],z);return [(q.x-ox)*k,(q.y-oy)*k];};
+  drawRouteCanvas(g,th,state.route.map(P),1.5);
+  const marks=[],mark=(p,cls,txt)=>{const q=P(p);marks.push({x:q[0]/W*100,y:q[1]/H*100,cls,txt});};
+  if(state.route.length>=2){mark(state.route[0],"mkb-se","起");mark(state.route[state.route.length-1],"mkb-se","终");}
+  sortedPins().forEach((p,i)=>mark(p,"mkb-pin",String(i+1)));
+  return {src:cv.toDataURL("image/png"),marks};   // 瓦片跨域被拒时这里会抛错，由调用方兜底
 }
 function buildRouteSVG(th){
   const pts=state.route;
@@ -1166,7 +1250,9 @@ function cardHTML(d){
       :'<div class="ec-map" style="display:flex;align-items:center;justify-content:center;background:#00000008;font-size:28px;opacity:.6">还没有路线，开始记录后这里会显示你的轨迹</div>';
   }else{
     mapHtml=d.mapShot
-      ?'<div class="ec-map"><img src="'+d.mapShot+'" alt="路线图"></div>'
+      ?'<div class="ec-map"><img src="'+d.mapShot+'" alt="路线图">'
+        +d.mapMarks.map(m=>'<span class="ec-mk" style="left:'+m.x.toFixed(2)+'%;top:'+m.y.toFixed(2)+'%"><div class="'+m.cls+'">'+m.txt+'</div></span>').join("")
+        +'</div>'
       :'<div class="ec-map" style="display:flex;align-items:center;justify-content:center;background:#00000010;font-size:28px;opacity:.6">地图截图失败，可直接截屏保存</div>';
   }
   const stats='<div class="ec-stats">'
