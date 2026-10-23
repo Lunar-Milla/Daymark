@@ -13,131 +13,131 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Noto+Serif+SC:wght@300;600;900&family=Courier+Prime:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&family=Archivo+Black&family=Inter+Tight:wght@500;700&family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&family=Poppins:wght@700;800&family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
-/* ============ 基础 ============ */
+/* ============ 基础 ============
+ * 主题变量由 JS 从 THEMES 配置写入 :root（见 themeVars）。这里只是首屏默认值。
+ */
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#FAF6EF; --fg:#3E3A32; --muted:#A39E93; --accent:#7E9BB3; --accent2:#C4A49A;
-  --topbar:#FAF6EF; --panel:#FFFFFF; --line:rgba(0,0,0,.08);
+  --bg:#FAF6EF; --fg:#3E3A32; --muted:#A39E93; --accent:#7E9BB3; --on-accent:#fff;
+  --topbar:#FAF6EF; --on-topbar:#3E3A32; --panel:#FFFFFF; --line:rgba(0,0,0,.08); --ico:currentColor;
   --font-d:"Fraunces","Noto Serif SC",Georgia,serif;
   --font-b:"Noto Serif SC","Noto Sans SC",system-ui,sans-serif;
   --font-n:"Courier Prime",ui-monospace,SFMono-Regular,Menlo,monospace;
-  --radius:14px;
+  --title-ls:.02em;
+  --radius:14px; --radius-ctl:12px; --pill:999px; --sheet-r:20px; --topbar-bd:1px solid var(--line);
+  --map-bg:#e8e4da; --dur:.25s; --ease:ease;
+  /* 由 syncInsets() 计算：悬浮式顶栏/工具栏遮挡地图的高度 */
+  --overlay-top:0px; --overlay-bottom:0px; --gallery-top:56px; --chrome-bottom:80px;
 }
 html,body{height:100%;overscroll-behavior:none}
 body{
   font-family:var(--font-b); background:var(--bg); color:var(--fg);
   position:fixed; inset:0; overflow:hidden; touch-action:manipulation;
-  transition:background .35s ease,color .35s ease;
+  transition:background var(--dur) ease,color var(--dur) ease;
 }
 #app{height:100vh;height:100dvh;display:flex;flex-direction:column;position:relative}
 button{font-family:inherit;border:none;background:none;color:inherit;cursor:pointer}
 /* ============ 顶栏 ============ */
 #topbar{
-  display:flex;align-items:center;justify-content:space-between;
+  display:flex;align-items:center;justify-content:space-between;position:relative;
   padding:calc(10px + env(safe-area-inset-top)) 14px 10px;
-  background:var(--topbar); border-bottom:1px solid var(--line); z-index:1200;
-  transition:background .35s ease;
+  background:var(--topbar); color:var(--on-topbar); border-bottom:var(--topbar-bd); z-index:1200;
+  transition:background var(--dur) ease;
 }
-#brandTitle{font-family:var(--font-d);font-size:20px;font-weight:700;letter-spacing:.02em}
-#brandDate{font-family:var(--font-n);font-size:11px;color:var(--muted);margin-top:2px;letter-spacing:.08em}
+#brandTitle{font-family:var(--font-d);font-size:20px;font-weight:700;letter-spacing:var(--title-ls)}
+#brandDate{font-family:var(--font-n);font-size:11px;opacity:.6;margin-top:2px;letter-spacing:.08em}
 #themeToggle{
-  font-size:13px;padding:8px 14px;border:1px solid var(--line);border-radius:999px;
+  font-size:13px;padding:8px 14px;border:1px solid var(--line);border-radius:var(--pill);
   background:var(--panel);color:var(--fg);
 }
-body[data-theme="blackgold"] #themeToggle{background:#161617;border-color:#C6A15B55;color:#F5F1E8}
-/* ---- 主题个性：切换一眼可见 ---- */
-body[data-theme="brutalist"] #topbar{border-bottom:4px solid #0A0A09}
-body[data-theme="brutalist"] #brandTitle{letter-spacing:-.02em}
-body[data-theme="brutalist"] .tool-btn{border:2px solid #0A0A09;border-radius:0;margin:0 3px}
-body[data-theme="brutalist"] .tool-btn.active{background:#E61919;border-color:#E61919;color:#fff}
-body[data-theme="brutalist"] #themeToggle{border-radius:0;border:2px solid #F4F4F0;background:#0A0A09;color:#F4F4F0}
-body[data-theme="brutalist"] .theme-chip{border-radius:0}
-body[data-theme="playful"] .tool-btn{border-radius:999px}
-body[data-theme="playful"] #themeToggle{border-radius:999px;border-color:#EF476F;color:#EF476F}
-body[data-theme="playful"] .theme-chip{border-radius:18px}
-body[data-theme="blackgold"] #topbar{border-bottom:1px solid rgba(198,161,91,.45)}
-body[data-theme="blackgold"] .tool-btn.active{background:#C6A15B;color:#0B0B0C}
-body[data-theme="blackgold"] .theme-chip.active{outline-color:#C6A15B}
-body[data-theme="ink"] #topbar{border-bottom:1px solid rgba(43,43,40,.4)}
-body[data-theme="ink"] #brandTitle{letter-spacing:.35em}
-body[data-theme="minimal"] .tool-btn{border-radius:0}
-body[data-theme="minimal"] #themeToggle{border-radius:0}
-body[data-theme="magazine"] #topbar{border-bottom:2px solid #1A1815}
-.theme-chip .rsw{display:block;margin:1px 0}
-/* ---- 底部图标跟主题走 ---- */
-body[data-theme="blackgold"] .tool-btn .ico{color:#C6A15B}
-body[data-theme="brutalist"] .tool-btn .ico{background:#0A0A09;color:#F4F4F0;padding:7px;border-radius:0;line-height:0}
-body[data-theme="brutalist"] .tool-btn.active .ico{background:#E61919;color:#fff}
-body[data-theme="playful"] #btnRecord .ico{color:#EF476F}
-body[data-theme="playful"] #btnPin .ico{color:#E5A800}
-body[data-theme="playful"] #btnClear .ico{color:#06D6A0}
-body[data-theme="playful"] #btnExport .ico{color:#118AB2}
-body[data-theme="ink"] .tool-btn .ico{color:#2B2B28}
-body[data-theme="magazine"] .tool-btn .ico{color:#B85A3A}
-/* ============ 主题选择条 ============ */
-#themeStrip{
-  display:none;gap:10px;overflow-x:auto;padding:12px 14px;z-index:1200;
-  background:var(--topbar);border-bottom:1px solid var(--line);
-  scrollbar-width:none;
+/* ============ 主题画廊 ============ */
+#themeGallery{
+  display:none;position:absolute;left:0;right:0;top:var(--gallery-top);z-index:1250;
+  background:var(--topbar);color:var(--on-topbar);border-bottom:1px solid var(--line);
+  box-shadow:0 12px 30px rgba(0,0,0,.14);padding:10px 0 12px;
 }
-#themeStrip::-webkit-scrollbar{display:none}
-#themeStrip.open{display:flex}
-.theme-chip{
-  flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:6px;
-  padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);
-  background:var(--panel);min-width:86px;
+#themeGallery.open{display:block}
+.tg-cats{display:flex;gap:6px;overflow-x:auto;padding:0 14px 8px;scrollbar-width:none}
+.tg-cats::-webkit-scrollbar{display:none}
+.tg-cat{font-size:12px;padding:5px 12px;border-radius:var(--pill);white-space:nowrap;
+  border:1px solid color-mix(in srgb,var(--on-topbar) 28%,transparent)}
+.tg-cat[aria-pressed="true"]{background:var(--on-topbar);color:var(--topbar)}
+.tg-list{display:flex;gap:10px;overflow-x:auto;padding:4px 14px 6px;scroll-snap-type:x proximity;scrollbar-width:thin}
+.tg-card{
+  flex:0 0 auto;width:120px;padding:6px;position:relative;text-align:left;scroll-snap-align:start;
+  display:flex;flex-direction:column;gap:2px;
+  border:1px solid var(--line);border-radius:min(var(--radius),12px);background:var(--panel);color:var(--fg);
 }
-.theme-chip .dots{display:flex;gap:4px}
-.theme-chip .dots i{width:14px;height:14px;border-radius:50%;border:1px solid rgba(0,0,0,.15);display:block}
-.theme-chip .tname{font-size:11px;white-space:nowrap}
-.theme-chip.active{outline:2px solid var(--accent);outline-offset:2px}
+.tg-card[hidden]{display:none}
+.tg-card.is-current{outline:2px solid var(--accent);outline-offset:2px}
+.tg-name{font-size:12px;font-weight:600;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tg-meta{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tg-badge{display:none;position:absolute;top:10px;right:10px;font-size:10px;padding:2px 7px;border-radius:999px;
+  background:var(--accent);color:var(--on-accent);z-index:2}
+.tg-card.is-current .tg-badge{display:block}
+.tg-actions{display:none;align-items:center;gap:8px;padding:8px 14px 0;font-size:12px}
+.tg-actions.show{display:flex}
+.tg-actions span{flex:1;opacity:.7}
+.tg-actions button{padding:6px 14px;border-radius:var(--pill);border:1px solid color-mix(in srgb,var(--on-topbar) 35%,transparent);font-size:12px}
+/* 缩略图：用该主题自己的变量渲染，和真实界面同源 */
+.tt{position:relative;height:128px;overflow:hidden;border-radius:min(var(--radius),8px);
+  background-color:var(--bg);color:var(--fg);font-family:var(--font-b);
+  background-image:repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px 26px),repeating-linear-gradient(0deg,var(--line) 0 1px,transparent 1px 22px)}
+.tt svg{position:absolute;inset:0;width:100%;height:100%}
+.tt-top{position:absolute;left:0;right:0;top:0;height:18px;padding:0 6px;background:var(--topbar);color:var(--on-topbar);
+  border-bottom:1px solid var(--line);font:700 9px/18px var(--font-d);letter-spacing:var(--title-ls);z-index:1}
+.tt-bar{position:absolute;left:0;right:0;bottom:0;height:18px;display:flex;justify-content:space-around;align-items:center;
+  background:var(--topbar);color:var(--on-topbar);border-top:1px solid var(--line);z-index:1}
+.tt-bar i{width:7px;height:7px;border-radius:2px;background:var(--ico);opacity:.8}
+.tt-bar i:first-child{background:var(--accent);opacity:1}
+.tt[data-topbar="float"] .tt-top{left:5px;right:5px;top:5px;border:1px solid var(--line);border-radius:min(var(--radius),6px)}
+.tt[data-toolbar="pill"] .tt-bar{left:12px;right:12px;bottom:5px;border:1px solid var(--line);border-radius:var(--pill)}
+.tt[data-toolbar="blocks"] .tt-bar{justify-content:space-evenly}
+.tt[data-toolbar="blocks"] .tt-bar i{width:18px;height:11px;border-radius:0;background:none;border:1.5px solid var(--on-topbar)}
+.tt[data-toolbar="blocks"] .tt-bar i:first-child{background:var(--accent);border-color:var(--accent)}
+.tt-mk{position:absolute;width:0;height:0;z-index:0}
+.tt-mk>div{position:absolute;left:0;top:0;transform:translate(-50%,-50%) scale(.42)}
 /* ============ 地图区 ============ */
-#mapWrap{flex:1;position:relative;overflow:hidden;background:#e8e4da}
+#mapWrap{flex:1;position:relative;overflow:hidden;background:var(--map-bg)}
 #map{position:absolute;inset:0;z-index:1}
 .leaflet-container{font-family:var(--font-b)}
-/* 弱化瓦片：路线是主角，地图是舞台 */
+.leaflet-top{top:var(--overlay-top)}
+.leaflet-bottom{bottom:var(--overlay-bottom)}
+/* 弱化瓦片：路线是主角，地图是舞台。透明度与滤镜来自主题 map.tileOpacity / map.tileFilter */
 .leaflet-tile-pane{transition:opacity .3s}
-.tiles-cream{opacity:.28;filter:sepia(.28) saturate(.7) brightness(1.12)}
-.tiles-blackgold{opacity:.5;filter:invert(.92) hue-rotate(180deg) brightness(.78) contrast(.9) saturate(.5)}
-.tiles-brutalist{opacity:.3;filter:grayscale(1) contrast(1.05) brightness(1.12)}
-.tiles-magazine{opacity:.3;filter:sepia(.5) saturate(.6) brightness(1.14)}
-.tiles-ink{opacity:.28;filter:grayscale(1) sepia(.3) brightness(1.18)}
-.tiles-playful{opacity:.32;filter:saturate(1) brightness(1.1)}
-.tiles-minimal{opacity:.22;filter:grayscale(1) brightness(1.2)}
 body.capturing .leaflet-control-container{display:none}
 /* ============ 悬浮 HUD ============ */
 .hud{
-  position:absolute;left:50%;transform:translateX(-50%);top:12px;z-index:1100;
+  position:absolute;left:50%;transform:translateX(-50%);top:calc(12px + var(--overlay-top));z-index:1100;
   display:none;align-items:center;gap:10px;
   background:var(--panel);color:var(--fg);border:1px solid var(--line);
-  border-radius:999px;padding:8px 8px 8px 16px;box-shadow:0 6px 24px rgba(0,0,0,.12);
+  border-radius:var(--pill);padding:8px 8px 8px 16px;box-shadow:0 6px 24px rgba(0,0,0,.12);
   max-width:calc(100% - 24px);
 }
 .hud.show{display:flex}
-.hud .rec-dot{width:10px;height:10px;border-radius:50%;background:#E5484D;animation:blink 1.2s infinite}
+.hud .rec-dot{width:10px;height:10px;border-radius:50%;background:#E5484D;animation:blink 1.2s infinite;flex:0 0 auto}
 @keyframes blink{50%{opacity:.25}}
 .hud .hud-txt{font-family:var(--font-n);font-size:13px;white-space:nowrap}
-.hud button{font-size:13px;padding:8px 14px;border-radius:999px;background:var(--fg);color:var(--bg);white-space:nowrap}
+.hud button{font-size:13px;padding:8px 14px;border-radius:var(--pill);background:var(--fg);color:var(--bg);white-space:nowrap}
 .hud button.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
-#drawHud,#pinHud{border-radius:var(--radius)}
-#drawHud .hud-txt,#pinHud .hud-txt{font-family:var(--font-b)}
+#pinHud{border-radius:var(--radius)}
+#pinHud .hud-txt{font-family:var(--font-b)}
 /* ============ 底部工具条 ============ */
 #toolbar{
-  display:flex;z-index:1200;background:var(--topbar);border-top:1px solid var(--line);
+  display:flex;z-index:1200;background:var(--topbar);color:var(--on-topbar);border-top:1px solid var(--line);
   padding:8px 6px calc(10px + env(safe-area-inset-bottom));
-  transition:background .35s ease;
+  transition:background var(--dur) ease;
 }
 .tool-btn{
   flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
-  padding:8px 2px;border-radius:12px;color:var(--fg);font-size:11px;
+  padding:8px 2px;border-radius:var(--radius-ctl);color:inherit;font-size:11px;white-space:nowrap;
 }
-.tool-btn .ico{font-size:21px;line-height:1}
+.tool-btn .ico{font-size:21px;line-height:1;color:var(--ico)}
 .tool-btn .ico svg{width:24px;height:24px;display:block}
-.tool-btn.active{background:var(--accent);color:#fff}
-.tool-btn.active .ico{filter:none}
+.tool-btn.active{background:var(--accent);color:var(--on-accent)}
+.tool-btn.active .ico{color:inherit}
 .tool-btn:disabled{opacity:.4}
-
-/* ============ 弹窗（底部弹出） ============ */
+/* ============ 弹窗（窄屏底部弹出，宽屏居中） ============ */
 .modal-mask{
   position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2000;
   display:none;align-items:flex-end;justify-content:center;
@@ -146,55 +146,71 @@ body.capturing .leaflet-control-container{display:none}
 .modal{
   width:100%;max-width:560px;max-height:88vh;overflow-y:auto;
   background:var(--panel);color:var(--fg);
-  border-radius:20px 20px 0 0;padding:20px 18px calc(22px + env(safe-area-inset-bottom));
-  animation:slideUp .25s ease;
+  border-radius:var(--sheet-r) var(--sheet-r) 0 0;padding:20px 18px calc(22px + env(safe-area-inset-bottom));
+  animation:slideUp var(--dur) var(--ease);
 }
+.modal:focus{outline:none}
 @keyframes slideUp{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
+@keyframes popIn{from{transform:scale(.96);opacity:0}to{transform:none;opacity:1}}
 .modal h3{font-family:var(--font-d);font-size:18px;margin-bottom:14px}
 .modal .row{margin-bottom:14px}
 .modal label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;letter-spacing:.06em}
 .modal input[type=text],.modal textarea{
-  width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;
+  width:100%;border:1px solid var(--line);border-radius:min(var(--radius-ctl),10px);padding:10px 12px;
   font-size:15px;font-family:inherit;background:var(--bg);color:var(--fg);resize:none;
 }
 .modal input:focus,.modal textarea:focus{outline:2px solid var(--accent);outline-offset:1px}
-#pinImgPreview{display:none;width:100%;border-radius:10px;margin-top:8px;max-height:220px;object-fit:cover}
+#pinImgPreview{display:none;width:100%;border-radius:min(var(--radius-ctl),10px);margin-top:8px;max-height:220px;object-fit:cover}
 .photo-btn{
-  display:inline-block;padding:10px 18px;border:1px dashed var(--muted);border-radius:10px;
-  font-size:14px;color:var(--fg);
+  display:inline-block;padding:10px 18px;border:1px dashed var(--muted);border-radius:min(var(--radius-ctl),10px);
+  font-size:14px;color:var(--fg);cursor:pointer;
 }
 .btn-row{display:flex;gap:10px;margin-top:6px}
 .btn{
-  flex:1;padding:13px;border-radius:12px;font-size:15px;font-weight:700;text-align:center;
+  flex:1;padding:13px;border-radius:var(--radius-ctl);font-size:15px;font-weight:700;text-align:center;
   background:var(--fg);color:var(--bg);
 }
 .btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
 .btn.danger{background:#E5484D;color:#fff}
 .char-count{font-size:11px;color:var(--muted);text-align:right;margin-top:4px}
-/* ============ 地图标记 ============ */
-.mk-pin,.mk-se{background:none;border:none}
-.mk-pin>div,.mk-se>div{
-  display:flex;align-items:center;justify-content:center;
-  width:34px;height:34px;border-radius:50%;
-  font-weight:800;font-size:15px;
-  transform:translate(-2px,-2px);
+/* ============ 地图标记（尺寸/颜色/形状来自主题 map.marker） ============ */
+.mk-pin,.mk-se{background:none;border:none;display:flex;align-items:center;justify-content:center}
+.mkb-pin,.mkb-se{display:flex;align-items:center;justify-content:center;flex:0 0 auto;font-family:var(--mk-font)}
+.mkb-pin{width:var(--mkp-size);height:var(--mkp-size);font-size:var(--mkp-fs);font-weight:var(--mkp-w);border-radius:var(--mkp-r);
+  background:var(--mkp-bg);color:var(--mkp-fg);border:var(--mkp-bd);box-shadow:var(--mkp-sh)}
+.mkb-se{width:var(--mks-size);height:var(--mks-size);font-size:var(--mks-fs);font-weight:var(--mks-w);border-radius:var(--mks-r);
+  background:var(--mks-bg);color:var(--mks-fg);border:var(--mks-bd);box-shadow:var(--mks-sh)}
+
+/* ============ 布局变体 ============
+ * 主题通过 layout.topbar / layout.toolbar / layout.modal 选用；新主题优先组合已有变体。
+ * topbar:  bar（整条） | float（悬浮卡片）
+ * toolbar: dock（底部整条） | pill（悬浮胶囊） | blocks（硬边方块）
+ * modal:   sheet（底部弹出） | dialog（居中卡片）
+ */
+[data-topbar="float"] #topbar{
+  position:absolute;left:10px;right:10px;top:calc(8px + env(safe-area-inset-top));
+  padding:8px 8px 8px 14px;border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 6px 22px rgba(0,0,0,.12);
 }
-body[data-theme="cream"] .mk-pin>div{background:#FFFDF8;border:2.5px solid #7E9BB3;color:#4E6B7E;box-shadow:0 2px 8px rgba(0,0,0,.25)}
-body[data-theme="blackgold"] .mk-pin>div{background:#0B0B0C;border:1.5px solid #C6A15B;color:#C6A15B;box-shadow:0 2px 10px rgba(0,0,0,.5)}
-body[data-theme="brutalist"] .mk-pin>div{background:#E61919;border:3px solid #0A0A09;color:#fff;border-radius:0;font-family:"Archivo Black","Noto Sans SC",sans-serif}
-body[data-theme="magazine"] .mk-pin>div{background:#F3EEE2;border:1.5px solid #1A1815;color:#1A1815;font-family:"Playfair Display","Noto Serif SC",serif}
-body[data-theme="ink"] .mk-pin>div{background:#F5F1E8;border:2px solid #2B2B28;color:#B03A2E;border-radius:5px;font-family:"Noto Serif SC",serif}
-body[data-theme="playful"] .mk-pin>div{background:#EF476F;color:#fff;border:2.5px solid #fff;box-shadow:0 3px 10px rgba(239,71,111,.4);border-radius:40% 60% 70% 30%/40% 50% 60% 50%;font-family:"Poppins","ZCOOL KuaiLe","Noto Sans SC",sans-serif}
-body[data-theme="minimal"] .mk-pin>div{background:#111;color:#fff;width:26px;height:26px;font-size:12px;font-weight:400}
-.mk-se>div{width:36px;height:36px;font-size:16px}
-body[data-theme="cream"] .mk-se>div{background:#7E9BB3;color:#fff;border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3)}
-body[data-theme="blackgold"] .mk-se>div{background:#C6A15B;color:#0B0B0C;border:2px solid #0B0B0C}
-body[data-theme="brutalist"] .mk-se>div{background:#0A0A09;color:#fff;border:3px solid #E61919;border-radius:0;font-family:"Archivo Black","Noto Sans SC",sans-serif}
-body[data-theme="magazine"] .mk-se>div{background:#B85A3A;color:#fff;border:2px solid #1A1815;font-family:"Playfair Display","Noto Serif SC",serif}
-body[data-theme="ink"] .mk-se>div{background:#B03A2E;color:#F5F1E8;border-radius:4px;font-family:"Noto Serif SC",serif;box-shadow:0 2px 8px rgba(0,0,0,.3)}
-body[data-theme="playful"] .mk-se>div{background:#FFD166;color:#264653;border:2.5px solid #fff;border-radius:40% 60% 70% 30%/40% 50% 60% 50%;font-family:"Poppins","ZCOOL KuaiLe","Noto Sans SC",sans-serif}
-body[data-theme="minimal"] .mk-se>div{background:#111;color:#fff;border-radius:4px;font-weight:400}
-/* ============ 导出卡片（宽1080，高度自适应） ============ */
+[data-toolbar="pill"] #toolbar{
+  position:absolute;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom));
+  width:min(440px,calc(100% - 24px));padding:6px;border:1px solid var(--line);border-radius:var(--pill);
+  box-shadow:0 8px 28px rgba(0,0,0,.16);
+}
+[data-toolbar="pill"] .tool-btn{border-radius:var(--pill)}
+[data-toolbar="blocks"] #toolbar{gap:6px;padding-left:8px;padding-right:8px}
+[data-toolbar="blocks"] .tool-btn{border:2px solid var(--on-topbar);border-radius:0}
+[data-toolbar="blocks"] .tool-btn.active{border-color:var(--accent)}
+[data-modal="dialog"] .modal-mask{align-items:center;padding:16px}
+[data-modal="dialog"] .modal{border-radius:var(--sheet-r);max-height:calc(100dvh - 32px);padding-bottom:22px;animation-name:popIn}
+@media (min-width:760px){
+  .modal-mask{align-items:center;padding:24px}
+  .modal{border-radius:var(--sheet-r);max-height:calc(100dvh - 48px);padding-bottom:22px;animation-name:popIn}
+}
+
+/* ============ 主题区块 ============
+ * 颜色、字体、圆角、标记、动效优先写进 THEMES 配置；这里只放配置表达不了的个性细节和导出卡片样式。
+ */
+/* 导出卡片通用骨架（宽1080，高度自适应） */
 #cardStage{position:fixed;left:-12000px;top:0;z-index:-1}
 .exp-card{
   width:1080px;min-height:1440px;position:relative;overflow:hidden;
@@ -208,9 +224,11 @@ body[data-theme="minimal"] .mk-se>div{background:#111;color:#fff;border-radius:4
 .exp-card .ec-map{margin:0 72px;height:520px;overflow:hidden;position:relative;border-radius:18px}
 .exp-card .ec-map img{width:100%;height:100%;object-fit:cover;display:block}
 .exp-card .ec-map svg{width:100%;height:100%;display:block}
-.routeonly-row{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--fg);margin:2px 0 12px;cursor:pointer}
-.routeonly-row input{width:18px;height:18px;accent-color:var(--accent)}
-.routeonly-row small{color:var(--muted);font-size:12px}
+.exp-card .ec-mk{position:absolute;width:0;height:0}
+/* 用负偏移居中、transform 只做缩放：html2canvas 对 translate(-50%) 与 scale 组合的处理有偏差 */
+.exp-card .ec-mk>div{position:absolute;transform:scale(1.5)}
+.exp-card .ec-mk>.mkb-pin{left:calc(var(--mkp-size) / -2);top:calc(var(--mkp-size) / -2)}
+.exp-card .ec-mk>.mkb-se{left:calc(var(--mks-size) / -2);top:calc(var(--mks-size) / -2)}
 .exp-card .ec-stats{display:flex;margin:36px 72px 0;border-top:2px solid currentColor;border-bottom:2px solid currentColor}
 .exp-card .ec-stat{flex:1;padding:22px 0;text-align:center}
 .exp-card .ec-stat+.ec-stat{border-left:1px solid currentColor}
@@ -219,14 +237,15 @@ body[data-theme="minimal"] .mk-se>div{background:#111;color:#fff;border-radius:4
 .exp-card .ec-pins{margin:36px 72px 0}
 .exp-card .ec-pin{display:flex;gap:28px;margin-bottom:28px;align-items:center}
 .exp-card .ec-pin img{width:200px;height:200px;object-fit:cover;flex:0 0 auto}
-.exp-card .ec-pin .t{flex:1}
+.exp-card .ec-pin .t{flex:1;min-width:0;overflow-wrap:anywhere}
 .exp-card .ec-pin .t b{font-size:30px;display:block;margin-bottom:8px}
 .exp-card .ec-pin .t p{font-size:26px;line-height:1.5;opacity:.8}
 .exp-card .ec-pin .t small{font-size:22px;opacity:.55}
 .exp-card .ec-foot{padding:0 72px 56px;font-size:24px;opacity:.5;letter-spacing:.3em;text-align:center}
 [contenteditable]{outline:none;border-bottom:2px dashed transparent}
 [contenteditable]:focus{border-bottom-color:currentColor}
-/* T1 奶油胶片 */
+
+/* ---- 主题：奶油胶片 cream ---- */
 .card-t1{--card-bg:#FAF6EF;--card-fg:#3E3A32;font-family:"Noto Serif SC","Noto Sans SC",serif}
 .card-t1 .ec-date{font-family:"Fraunces","Noto Serif SC",Georgia,serif}
 .card-t1 .ec-deco{font-family:"Courier Prime",ui-monospace,monospace}
@@ -238,7 +257,8 @@ body[data-theme="minimal"] .mk-se>div{background:#111;color:#fff;border-radius:4
 .card-t1 .ec-pin img{border:10px solid #fff;box-shadow:0 4px 14px rgba(0,0,0,.15)}
 .card-t1 .grain{position:absolute;inset:0;pointer-events:none;opacity:.5;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E")}
-/* T2 黑金轻奢 */
+
+/* ---- 主题：黑金轻奢 blackgold ---- */
 .card-t2{--card-bg:#0B0B0C;--card-fg:#F5F1E8;font-family:"Noto Serif SC",serif}
 .card-t2 .ec-date{font-family:"Cormorant Garamond","Noto Serif SC",serif;font-size:64px;letter-spacing:.06em}
 .card-t2 .ec-deco{color:#C6A15B;letter-spacing:.5em;font-size:28px}
@@ -248,7 +268,9 @@ body[data-theme="minimal"] .mk-se>div{background:#111;color:#fff;border-radius:4
 .card-t2 .ec-stat b{font-family:"Cormorant Garamond","Noto Serif SC",serif;color:#C6A15B}
 .card-t2 .ec-stat span{letter-spacing:.4em}
 .card-t2 .ec-pin img{border:1px solid #C6A15B66}
-/* T3 瑞士工业粗野主义：禁圆角/阴影/渐变 */
+
+/* ---- 主题：瑞士粗野主义 brutalist（禁圆角/阴影/渐变） ---- */
+body[data-theme="brutalist"] #themeToggle{border:2px solid #F4F4F0;background:#0A0A09;color:#F4F4F0}
 .card-t3{--card-bg:#F4F4F0;--card-fg:#0A0A09;font-family:"Inter Tight","Noto Sans SC",system-ui,sans-serif}
 .card-t3 .ec-head{background:#0A0A09;color:#F4F4F0;padding:36px 72px}
 .card-t3 .ec-date{font-family:"Archivo Black","Noto Sans SC",sans-serif;font-size:80px;line-height:1;letter-spacing:-.02em;white-space:nowrap}
@@ -264,7 +286,8 @@ body[data-theme="minimal"] .mk-se>div{background:#111;color:#fff;border-radius:4
 .card-t3 .ec-cta{background:#E61919;color:#fff;font-family:"Archivo Black","Noto Sans SC",sans-serif;
   font-size:34px;text-align:center;padding:26px;margin:36px 72px 0;letter-spacing:.04em}
 .card-t3 .ec-foot{background:#0A0A09;color:#F4F4F0;padding:22px 72px;margin-top:36px;font-size:22px;opacity:1}
-/* T4 杂志海报 */
+
+/* ---- 主题：星期日杂志 magazine ---- */
 .card-t4{--card-bg:#F3EEE2;--card-fg:#1A1815;font-family:"Inter","Noto Sans SC",system-ui,sans-serif}
 .card-t4 .ec-head{border-bottom:1px solid #1A1815}
 .card-t4 .ec-date{font-family:"Playfair Display","Noto Serif SC",Georgia,serif;font-size:88px;line-height:.95}
@@ -275,7 +298,8 @@ body[data-theme="minimal"] .mk-se>div{background:#111;color:#fff;border-radius:4
 .card-t4 .ec-pin{border-top:1px solid #1A181555;padding-top:24px}
 .card-t4 .ec-pin img{border-radius:0}
 .card-t4 .ec-pin .t b{font-family:"Playfair Display","Noto Serif SC",serif;font-size:34px}
-/* T5 新中式水墨 */
+
+/* ---- 主题：新中式水墨 ink ---- */
 .card-t5{--card-bg:#F5F1E8;--card-fg:#2B2B28;font-family:"Noto Serif SC",serif}
 .card-t5 .ec-head{display:flex;justify-content:flex-start;gap:44px;align-items:stretch}
 .card-t5 .ec-inkart{flex:1;min-width:0;border-left:1px solid rgba(43,43,40,.22)}
@@ -290,7 +314,13 @@ body[data-theme="minimal"] .mk-se>div{background:#111;color:#fff;border-radius:4
 .card-t5 .ec-stat b{font-family:"Noto Serif SC",serif;font-weight:900}
 .card-t5 .ec-pin img{border-radius:0;border:1px solid #2B2B2833}
 .card-t5 .ec-foot{letter-spacing:.5em}
-/* T6 插画趣味风 */
+
+/* ---- 主题：插画趣味风 playful ---- */
+body[data-theme="playful"] #themeToggle{border-color:#EF476F;color:#EF476F}
+body[data-theme="playful"] #btnRecord:not(.active) .ico{color:#EF476F}
+body[data-theme="playful"] #btnPin:not(.active) .ico{color:#E5A800}
+body[data-theme="playful"] #btnClear .ico{color:#06D6A0}
+body[data-theme="playful"] #btnExport .ico{color:#118AB2}
 .card-t6{--card-bg:#FEF6EE;--card-fg:#264653;font-family:"Noto Sans SC",system-ui,sans-serif}
 .card-t6 .ec-date{font-family:"Poppins","ZCOOL KuaiLe","Noto Sans SC",sans-serif;font-weight:800;font-size:64px}
 .card-t6 .ec-deco{font-family:"Poppins",sans-serif;color:#EF476F;letter-spacing:.2em}
@@ -303,7 +333,8 @@ body[data-theme="minimal"] .mk-se>div{background:#111;color:#fff;border-radius:4
 .card-t6 .ec-pin:nth-child(even) img{transform:rotate(2deg)}
 .card-t6 .ec-tape{position:absolute;width:120px;height:34px;background:#FFD166;opacity:.75;top:-14px;left:50%;transform:translateX(-50%) rotate(-3deg)}
 .card-t6 .ec-pin{position:relative;background:#fff;border-radius:24px;padding:20px;box-shadow:0 6px 18px rgba(0,0,0,.07)}
-/* T7 极简主义 */
+
+/* ---- 主题：极简主义 minimal ---- */
 .card-t7{--card-bg:#FFFFFF;--card-fg:#111111;font-family:"Noto Sans SC",system-ui,sans-serif}
 .card-t7 .ec-head{padding:88px 88px 30px}
 .card-t7 .ec-date{font-family:"Playfair Display","Noto Serif SC",serif;font-weight:600;font-size:72px}
@@ -317,52 +348,72 @@ body[data-theme="minimal"] .mk-se>div{background:#111;color:#fff;border-radius:4
 .card-t7 .ec-pin img{border-radius:0;border:1px solid #1112}
 .card-t7 .ec-pin .t b{font-weight:400;font-size:28px}
 .card-t7 .ec-foot{font-size:22px;letter-spacing:.4em}
-/* 导出预览弹窗 */
+
+/* ============ 导出预览弹窗 ============ */
+.routeonly-row{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--fg);margin:2px 0 12px;cursor:pointer}
+.routeonly-row input{width:18px;height:18px;accent-color:var(--accent)}
+.routeonly-row small{color:var(--muted);font-size:12px}
 #exportBody{display:flex;flex-direction:column;gap:12px}
 #previewScroll{overflow:auto;max-height:52vh;border:1px solid var(--line);border-radius:12px;background:#8883}
 #previewScale{transform-origin:top left}
 #exportHint{font-size:12px;color:var(--muted);line-height:1.6}
 .toast{
-  position:fixed;left:50%;bottom:110px;transform:translateX(-50%) translateY(20px);z-index:3000;
+  position:fixed;left:50%;bottom:calc(var(--chrome-bottom) + 18px);transform:translateX(-50%) translateY(20px);z-index:3000;
   background:#222;color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;
   opacity:0;pointer-events:none;transition:all .3s;max-width:86vw;text-align:center;
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* ============ 可访问性 ============ */
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tool-btn:focus-visible,.tg-card:focus-visible{outline-offset:-2px}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+/* ============ 验收模式（?qa=场景） ============ */
+#qaBadge{position:fixed;left:8px;bottom:calc(var(--chrome-bottom) + 8px);z-index:1300;font:11px/1.4 ui-monospace,Menlo,monospace;
+  background:rgba(0,0,0,.72);color:#fff;padding:4px 8px;border-radius:6px;pointer-events:none}
 </style>
 </head>
-<body data-theme="cream">
+<body data-theme="cream" data-topbar="bar" data-toolbar="dock" data-modal="sheet">
 <div id="app">
   <header id="topbar">
     <div>
       <div id="brandTitle">Daymark</div>
       <div id="brandDate"></div>
     </div>
-    <button id="themeToggle">🎨 换风格</button>
+    <button id="themeToggle" aria-expanded="false" aria-controls="themeGallery">🎨 换风格</button>
   </header>
-  <div id="themeStrip"><div id="themeChips" style="display:flex;gap:10px"></div></div>
+  <section id="themeGallery" aria-label="主题画廊">
+    <div class="tg-cats" id="tgCats" role="group" aria-label="主题分类"></div>
+    <div class="tg-list" id="tgList"></div>
+    <div class="tg-actions" id="tgActions" aria-live="polite">
+      <span id="tgTip"></span>
+      <button id="tgUndo">撤销</button>
+    </div>
+  </section>
   <div id="mapWrap"><div id="map"></div>
-    <div class="hud" id="recHud">
-      <span class="rec-dot"></span>
+    <div class="hud" id="recHud" role="status">
+      <span class="rec-dot" aria-hidden="true"></span>
       <span class="hud-txt"><span id="recTime">00:00:00</span> · <span id="recDist">0.00</span> km</span>
       <button id="btnPause" class="ghost">暂停</button>
       <button id="btnStopRec">结束</button>
     </div>
-    <div class="hud" id="pinHud">
+    <div class="hud" id="pinHud" role="status">
       <span class="hud-txt" id="pinHudTxt">点击地图放置地点</span>
       <button id="btnCancelPin" class="ghost">取消</button>
     </div>
   </div>
-  <nav id="toolbar">
-    <button class="tool-btn" id="btnRecord"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/></svg></span><span>记录</span></button>
-    <button class="tool-btn" id="btnPin"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.6-7-11a7 7 0 1 1 14 0c0 5.4-7 11-7 11z"/><circle cx="12" cy="10" r="2.6"/></svg></span><span>地点</span></button>
-    <button class="tool-btn" id="btnClear"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 3v4.2h-4.2"/></svg></span><span>刷新</span></button>
-    <button class="tool-btn" id="btnExport"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M3 17l5-4.2 4 3.2 3.6-3.6L21 17"/></svg></span><span>导出</span></button>
+  <nav id="toolbar" aria-label="主要操作">
+    <button class="tool-btn" id="btnRecord" aria-pressed="false"><span class="ico" id="recIco" aria-hidden="true"></span><span id="recLbl">开始记录</span></button>
+    <button class="tool-btn" id="btnPin" aria-pressed="false"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.6-7-11a7 7 0 1 1 14 0c0 5.4-7 11-7 11z"/><circle cx="12" cy="10" r="2.6"/></svg></span><span>地点</span></button>
+    <button class="tool-btn" id="btnClear"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 3v4.2h-4.2"/></svg></span><span>清空</span></button>
+    <button class="tool-btn" id="btnExport"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M3 17l5-4.2 4 3.2 3.6-3.6L21 17"/></svg></span><span>导出</span></button>
   </nav>
 </div>
 
 <!-- 地点编辑弹窗 -->
 <div class="modal-mask" id="pinModalMask">
-  <div class="modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="pinModalTitle" tabindex="-1">
     <h3 id="pinModalTitle">添加地点</h3>
     <div class="row">
       <label>照片（可选）</label>
@@ -371,11 +422,11 @@ body[data-theme="minimal"] .mk-se>div{background:#111;color:#fff;border-radius:4
       <img id="pinImgPreview" alt="地点照片预览">
     </div>
     <div class="row">
-      <label>地点名称（可选）</label>
+      <label for="pinName">地点名称（可选）</label>
       <input type="text" id="pinName" maxlength="30" placeholder="例如：西湖断桥">
     </div>
     <div class="row">
-      <label>此刻的记录</label>
+      <label for="pinText">此刻的记录</label>
       <textarea id="pinText" rows="3" maxlength="140" placeholder="写下这一刻…（最多140字）"></textarea>
       <div class="char-count"><span id="pinTextCount">0</span>/140</div>
     </div>
@@ -389,8 +440,8 @@ body[data-theme="minimal"] .mk-se>div{background:#111;color:#fff;border-radius:4
 
 <!-- 清空确认弹窗 -->
 <div class="modal-mask" id="clearModalMask">
-  <div class="modal">
-    <h3>清空确认</h3>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="clearModalTitle" tabindex="-1">
+    <h3 id="clearModalTitle">清空确认</h3>
     <p style="font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:16px">清空后数据不可恢复，请谨慎操作。</p>
     <div class="btn-row" style="flex-direction:column">
       <button class="btn danger" id="btnClearAll">清空全部（路线 + 地点）</button>
@@ -402,8 +453,8 @@ body[data-theme="minimal"] .mk-se>div{background:#111;color:#fff;border-radius:4
 
 <!-- 导出预览弹窗 -->
 <div class="modal-mask" id="exportModalMask">
-  <div class="modal" style="max-width:640px">
-    <h3>打卡图预览 <span style="font-size:12px;color:var(--muted);font-weight:400">（虚线文字可点击编辑）</span></h3>
+  <div class="modal" style="max-width:640px" role="dialog" aria-modal="true" aria-labelledby="exportModalTitle" tabindex="-1">
+    <h3 id="exportModalTitle">打卡图预览 <span style="font-size:12px;color:var(--muted);font-weight:400">（虚线文字可点击编辑）</span></h3>
     <label class="routeonly-row"><input type="checkbox" id="routeOnlyToggle"> 纯路线模式 <small>隐藏地图底图，只显示走过的路线</small></label>
     <div id="exportBody">
       <div id="previewScroll"><div id="previewScale"></div></div>
@@ -416,7 +467,7 @@ body[data-theme="minimal"] .mk-se>div{background:#111;color:#fff;border-radius:4
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div id="cardStage"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -447,11 +498,31 @@ function toast(msg){
   clearTimeout(t._tm);t._tm=setTimeout(()=>t.classList.remove("show"),2400);
 }
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function esc(s){return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function isObj(o){return o&&typeof o==="object"&&!Array.isArray(o);}
+function merge(base,over){
+  const out={};
+  Object.keys(base).forEach(k=>{out[k]=isObj(base[k])?merge(base[k],{}):base[k];});
+  Object.keys(over||{}).forEach(k=>{out[k]=isObj(over[k])&&isObj(base[k])?merge(base[k],over[k]):over[k];});
+  return out;
+}
+/* ================= 验收模式 =================
+ * index.html?qa=full&theme=ink[&topbar=float&toolbar=pill&modal=dialog]
+ * 用夹具数据渲染，不读写用户存储。场景见 QA_SCENES。
+ */
+const QA=(()=>{
+  const q=new URLSearchParams(location.search),scene=q.get("qa");
+  if(!scene)return null;
+  const layout={};
+  ["topbar","toolbar","modal"].forEach(k=>{if(q.get(k))layout[k]=q.get(k);});
+  return {scene,theme:q.get("theme"),layout};
+})();
 /* ================= 本地存储 ================= */
-const LS_KEY="yiriji-state-v1";
+const LS_KEY="yiriji-state-v1";   // 保留旧键名，兼容已有用户数据
+const STATE_VERSION=2;
 const store={
   load(){try{const s=localStorage.getItem(LS_KEY);return s?JSON.parse(s):null;}catch(e){return null;}},
-  save(s){try{localStorage.setItem(LS_KEY,JSON.stringify(s));}catch(e){}}
+  save(s){if(QA)return;try{localStorage.setItem(LS_KEY,JSON.stringify(s));}catch(e){}}
 };
 /* 照片存 IndexedDB，失败降级内存 */
 const photoStore={
@@ -493,31 +564,123 @@ const photoStore={
     return Promise.resolve();
   }
 };
-/* ================= 7 套主题配置（数据驱动） ================= */
+/* ================= 主题配置（数据驱动） =================
+ * 每个主题按 7 个维度描述：palette / typography / shape / layout / map / card / motion。
+ * 只写与 THEME_DEFAULTS 不同的字段，defineTheme() 负责补齐。
+ * 主题 id 会写进用户存储，发布后不要改名；确需改名时在 THEME_ALIASES 里登记旧 id。
+ */
+const OSM_TILE="https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+const LAYOUTS={topbar:["bar","float"],toolbar:["dock","pill","blocks"],modal:["sheet","dialog"]};
+const THEME_ALIASES={};
+const THEME_DEFAULTS={
+  name:"",category:"其他",desc:"",
+  palette:{bg:"#FAF6EF",fg:"#3E3A32",muted:"#A39E93",accent:"#7E9BB3",onAccent:"#FFFFFF",
+    topbar:null,onTopbar:null,panel:"#FFFFFF",line:"rgba(0,0,0,.08)",icon:"currentColor"},
+  typography:{display:'"Fraunces","Noto Serif SC",Georgia,serif',body:'"Noto Serif SC","Noto Sans SC",system-ui,sans-serif',
+    num:'"Courier Prime",ui-monospace,SFMono-Regular,Menlo,monospace',titleSpacing:".02em"},
+  shape:{radius:"14px",control:"12px",pill:"999px",topbarBorder:"1px solid var(--line)"},
+  layout:{topbar:"bar",toolbar:"dock",modal:"sheet"},
+  map:{tile:OSM_TILE,bg:"#e8e4da",tileOpacity:.3,tileFilter:"none",
+    route:{color:"#7E9BB3",casing:"#FFFFFF",weight:7,casingW:14,innerDash:false,ink:false},
+    marker:{font:null,
+      pin:{size:"34px",fontSize:"15px",weight:"800",radius:"50%",bg:"#FFFFFF",fg:"#333333",border:"2px solid #333333",shadow:"none"},
+      se:{size:"36px",fontSize:"16px",weight:"800",radius:"50%",bg:"#333333",fg:"#FFFFFF",border:"none",shadow:"none"}}},
+  card:{cls:"card-t1",head:"rule",deco:"good day",tape:false,grain:false,cta:""},
+  motion:{dur:".25s",ease:"ease"}
+};
+function defineTheme(t){
+  const th=merge(THEME_DEFAULTS,t),p=th.palette;
+  p.topbar=p.topbar||p.bg;p.onTopbar=p.onTopbar||p.fg;
+  th.map.marker.font=th.map.marker.font||th.typography.body;
+  return th;
+}
 const THEMES=[
- {id:"cream",name:"奶油胶片",card:"card-t1",tile:"https://tile.openstreetmap.org/{z}/{x}/{y}.png",tileClass:"tiles-cream",dots:["#FAF6EF","#7E9BB3","#C4A49A"],
-  vars:{"--bg":"#FAF6EF","--fg":"#3E3A32","--muted":"#A39E93","--accent":"#7E9BB3","--topbar":"#FAF6EF","--panel":"#FFFDF8","--line":"rgba(62,58,50,.12)","--font-d":"\"Fraunces\",\"Noto Serif SC\",Georgia,serif","--font-b":"\"Noto Serif SC\",\"Noto Sans SC\",system-ui,serif","--font-n":"\"Courier Prime\",ui-monospace,Menlo,monospace"},
-  route:{color:"#7E9BB3",casing:"#FFFFFF",weight:7,casingW:14,innerDash:true}},
- {id:"blackgold",name:"黑金轻奢",card:"card-t2",tile:"https://tile.openstreetmap.org/{z}/{x}/{y}.png",tileClass:"tiles-blackgold",dots:["#0B0B0C","#C6A15B","#F5F1E8"],
-  vars:{"--bg":"#0B0B0C","--fg":"#F5F1E8","--muted":"#8A7F6A","--accent":"#C6A15B","--topbar":"#0B0B0C","--panel":"#161617","--line":"rgba(198,161,91,.25)","--font-d":"\"Cormorant Garamond\",\"Noto Serif SC\",Georgia,serif","--font-b":"\"Noto Serif SC\",\"Noto Sans SC\",system-ui,serif","--font-n":"\"Cormorant Garamond\",Georgia,serif"},
-  route:{color:"#C6A15B",casing:"#FFFFFF",weight:5,casingW:11}},
- {id:"brutalist",name:"瑞士粗野主义",card:"card-t3",tile:"https://tile.openstreetmap.org/{z}/{x}/{y}.png",tileClass:"tiles-brutalist",dots:["#F4F4F0","#0A0A09","#E61919"],
-  vars:{"--bg":"#F4F4F0","--fg":"#0A0A09","--muted":"#6E6E6A","--accent":"#E61919","--topbar":"#0A0A09","--panel":"#F4F4F0","--line":"rgba(10,10,9,.9)","--font-d":"\"Archivo Black\",\"Noto Sans SC\",sans-serif","--font-b":"\"Inter Tight\",\"Noto Sans SC\",system-ui,sans-serif","--font-n":"\"Inter Tight\",ui-monospace,monospace","--radius":"0px"},
-  route:{color:"#E61919",casing:"#0A0A09",weight:9,casingW:17}},
- {id:"magazine",name:"星期日杂志海报",card:"card-t4",tile:"https://tile.openstreetmap.org/{z}/{x}/{y}.png",tileClass:"tiles-magazine",dots:["#F3EEE2","#1A1815","#B85A3A"],
-  vars:{"--bg":"#F3EEE2","--fg":"#1A1815","--muted":"#6E6757","--accent":"#B85A3A","--topbar":"#F3EEE2","--panel":"#FBF8EF","--line":"rgba(26,24,21,.2)","--font-d":"\"Playfair Display\",\"Noto Serif SC\",Georgia,serif","--font-b":"\"Inter\",\"Noto Sans SC\",system-ui,sans-serif","--font-n":"\"Playfair Display\",Georgia,serif"},
-  route:{color:"#B85A3A",casing:"#FFFFFF",weight:7,casingW:14}},
- {id:"ink",name:"新中式水墨",card:"card-t5",tile:"https://tile.openstreetmap.org/{z}/{x}/{y}.png",tileClass:"tiles-ink",dots:["#F5F1E8","#2B2B28","#B03A2E"],
-  vars:{"--bg":"#F5F1E8","--fg":"#2B2B28","--muted":"#8A8578","--accent":"#B03A2E","--topbar":"#F5F1E8","--panel":"#FBF8EF","--line":"rgba(43,43,40,.18)","--font-d":"\"Noto Serif SC\",serif","--font-b":"\"Noto Serif SC\",\"Noto Sans SC\",serif","--font-n":"\"Cormorant Garamond\",serif"},
-  route:{ink:true}},
- {id:"playful",name:"插画趣味风",card:"card-t6",tile:"https://tile.openstreetmap.org/{z}/{x}/{y}.png",tileClass:"tiles-playful",dots:["#FEF6EE","#EF476F","#FFD166"],
-  vars:{"--bg":"#FEF6EE","--fg":"#264653","--muted":"#8AA0A8","--accent":"#EF476F","--topbar":"#FEF6EE","--panel":"#FFFFFF","--line":"rgba(38,70,83,.14)","--font-d":"\"Poppins\",\"ZCOOL KuaiLe\",\"Noto Sans SC\",sans-serif","--font-b":"\"Noto Sans SC\",system-ui,sans-serif","--font-n":"\"Poppins\",ui-monospace,monospace","--radius":"20px"},
-  route:{color:"#EF476F",casing:"#FFFFFF",weight:9,casingW:17}},
- {id:"minimal",name:"极简主义",card:"card-t7",tile:"https://tile.openstreetmap.org/{z}/{x}/{y}.png",tileClass:"tiles-minimal",dots:["#FFFFFF","#111111","#8A8A8A"],
-  vars:{"--bg":"#FFFFFF","--fg":"#111111","--muted":"#8A8A8A","--accent":"#111111","--topbar":"#FFFFFF","--panel":"#FFFFFF","--line":"rgba(0,0,0,.14)","--font-d":"\"Playfair Display\",\"Noto Serif SC\",serif","--font-b":"\"Noto Sans SC\",system-ui,sans-serif","--font-n":"\"Playfair Display\",serif","--radius":"0px"},
-  route:{color:"#111111",casing:"#FFFFFF",weight:4,casingW:9}}
-];
-const themeById=id=>THEMES.find(t=>t.id===id)||THEMES[0];
+ {id:"cream",name:"奶油胶片",category:"复古",desc:"暖白胶片与蓝灰路线",
+  palette:{bg:"#FAF6EF",fg:"#3E3A32",muted:"#A39E93",accent:"#7E9BB3",panel:"#FFFDF8",line:"rgba(62,58,50,.12)"},
+  map:{tileOpacity:.28,tileFilter:"sepia(.28) saturate(.7) brightness(1.12)",
+    route:{color:"#7E9BB3",casing:"#FFFFFF",weight:7,casingW:14,innerDash:true},
+    marker:{pin:{bg:"#FFFDF8",fg:"#4E6B7E",border:"2.5px solid #7E9BB3",shadow:"0 2px 8px rgba(0,0,0,.25)"},
+      se:{bg:"#7E9BB3",fg:"#FFFFFF",border:"2.5px solid #FFFFFF",shadow:"0 2px 8px rgba(0,0,0,.3)"}}},
+  card:{cls:"card-t1",grain:true}},
+ {id:"blackgold",name:"黑金轻奢",category:"夜间",desc:"夜色底与金线",
+  palette:{bg:"#0B0B0C",fg:"#F5F1E8",muted:"#8A7F6A",accent:"#C6A15B",onAccent:"#0B0B0C",panel:"#161617",line:"rgba(198,161,91,.25)",icon:"#C6A15B"},
+  typography:{display:'"Cormorant Garamond","Noto Serif SC",Georgia,serif',body:'"Noto Serif SC","Noto Sans SC",system-ui,serif',num:'"Cormorant Garamond",Georgia,serif'},
+  shape:{topbarBorder:"1px solid rgba(198,161,91,.45)"},
+  map:{tileOpacity:.5,tileFilter:"invert(.92) hue-rotate(180deg) brightness(.78) contrast(.9) saturate(.5)",
+    route:{color:"#C6A15B",casing:"#FFFFFF",weight:5,casingW:11},
+    marker:{pin:{bg:"#0B0B0C",fg:"#C6A15B",border:"1.5px solid #C6A15B",shadow:"0 2px 10px rgba(0,0,0,.5)"},
+      se:{bg:"#C6A15B",fg:"#0B0B0C",border:"2px solid #0B0B0C"}}},
+  card:{cls:"card-t2"},motion:{dur:".3s"}},
+ {id:"brutalist",name:"瑞士粗野主义",category:"设计",desc:"黑白红硬边网格",
+  palette:{bg:"#F4F4F0",fg:"#0A0A09",muted:"#6E6E6A",accent:"#E61919",topbar:"#0A0A09",onTopbar:"#F4F4F0",panel:"#F4F4F0",line:"rgba(10,10,9,.9)"},
+  typography:{display:'"Archivo Black","Noto Sans SC",sans-serif',body:'"Inter Tight","Noto Sans SC",system-ui,sans-serif',num:'"Inter Tight",ui-monospace,monospace',titleSpacing:"-.02em"},
+  shape:{radius:"0px",control:"0px",pill:"0px",topbarBorder:"4px solid #0A0A09"},
+  layout:{toolbar:"blocks"},
+  map:{tileOpacity:.3,tileFilter:"grayscale(1) contrast(1.05) brightness(1.12)",
+    route:{color:"#E61919",casing:"#0A0A09",weight:9,casingW:17},
+    marker:{font:'"Archivo Black","Noto Sans SC",sans-serif',
+      pin:{radius:"0",bg:"#E61919",fg:"#FFFFFF",border:"3px solid #0A0A09"},
+      se:{radius:"0",bg:"#0A0A09",fg:"#FFFFFF",border:"3px solid #E61919"}}},
+  card:{cls:"card-t3",head:"block",deco:"good day // trip",cta:"TODAY&rsquo;S TRIP →"},motion:{dur:".12s",ease:"linear"}},
+ {id:"magazine",name:"星期日杂志海报",category:"设计",desc:"衬线标题与编辑排版",
+  palette:{bg:"#F3EEE2",fg:"#1A1815",muted:"#6E6757",accent:"#B85A3A",panel:"#FBF8EF",line:"rgba(26,24,21,.2)",icon:"#B85A3A"},
+  typography:{display:'"Playfair Display","Noto Serif SC",Georgia,serif',body:'"Inter","Noto Sans SC",system-ui,sans-serif',num:'"Playfair Display",Georgia,serif'},
+  shape:{topbarBorder:"2px solid #1A1815"},
+  map:{tileOpacity:.3,tileFilter:"sepia(.5) saturate(.6) brightness(1.14)",
+    route:{color:"#B85A3A",casing:"#FFFFFF",weight:7,casingW:14},
+    marker:{font:'"Playfair Display","Noto Serif SC",serif',
+      pin:{bg:"#F3EEE2",fg:"#1A1815",border:"1.5px solid #1A1815"},
+      se:{bg:"#B85A3A",fg:"#FFFFFF",border:"2px solid #1A1815"}}},
+  card:{cls:"card-t4"}},
+ {id:"ink",name:"新中式水墨",category:"东方",desc:"宣纸、墨线与朱印",
+  palette:{bg:"#F5F1E8",fg:"#2B2B28",muted:"#8A8578",accent:"#B03A2E",panel:"#FBF8EF",line:"rgba(43,43,40,.18)"},
+  typography:{display:'"Noto Serif SC",serif',body:'"Noto Serif SC","Noto Sans SC",serif',num:'"Cormorant Garamond",serif',titleSpacing:".35em"},
+  shape:{topbarBorder:"1px solid rgba(43,43,40,.4)"},
+  map:{tileOpacity:.28,tileFilter:"grayscale(1) sepia(.3) brightness(1.18)",
+    route:{ink:true},
+    marker:{font:'"Noto Serif SC",serif',
+      pin:{radius:"5px",bg:"#F5F1E8",fg:"#B03A2E",border:"2px solid #2B2B28"},
+      se:{radius:"4px",bg:"#B03A2E",fg:"#F5F1E8",shadow:"0 2px 8px rgba(0,0,0,.3)"}}},
+  card:{cls:"card-t5",head:"ink"},motion:{dur:".4s"}},
+ {id:"playful",name:"插画趣味风",category:"趣味",desc:"糖果色与圆润贴纸",
+  palette:{bg:"#FEF6EE",fg:"#264653",muted:"#8AA0A8",accent:"#EF476F",panel:"#FFFFFF",line:"rgba(38,70,83,.14)"},
+  typography:{display:'"Poppins","ZCOOL KuaiLe","Noto Sans SC",sans-serif',body:'"Noto Sans SC",system-ui,sans-serif',num:'"Poppins",ui-monospace,monospace'},
+  shape:{radius:"20px",control:"999px"},
+  map:{tileOpacity:.32,tileFilter:"saturate(1) brightness(1.1)",
+    route:{color:"#EF476F",casing:"#FFFFFF",weight:9,casingW:17},
+    marker:{font:'"Poppins","ZCOOL KuaiLe","Noto Sans SC",sans-serif',
+      pin:{radius:"40% 60% 70% 30%/40% 50% 60% 50%",bg:"#EF476F",fg:"#FFFFFF",border:"2.5px solid #FFFFFF",shadow:"0 3px 10px rgba(239,71,111,.4)"},
+      se:{radius:"40% 60% 70% 30%/40% 50% 60% 50%",bg:"#FFD166",fg:"#264653",border:"2.5px solid #FFFFFF"}}},
+  card:{cls:"card-t6",tape:true},motion:{dur:".35s",ease:"cubic-bezier(.34,1.56,.64,1)"}},
+ {id:"minimal",name:"极简主义",category:"设计",desc:"大留白与细线",
+  palette:{bg:"#FFFFFF",fg:"#111111",muted:"#8A8A8A",accent:"#111111",panel:"#FFFFFF",line:"rgba(0,0,0,.14)"},
+  typography:{display:'"Playfair Display","Noto Serif SC",serif',body:'"Noto Sans SC",system-ui,sans-serif',num:'"Playfair Display",serif'},
+  shape:{radius:"0px",control:"0px",pill:"0px"},
+  map:{tileOpacity:.22,tileFilter:"grayscale(1) brightness(1.2)",
+    route:{color:"#111111",casing:"#FFFFFF",weight:4,casingW:9},
+    marker:{pin:{size:"26px",fontSize:"12px",weight:"400",bg:"#111111",fg:"#FFFFFF",border:"none"},
+      se:{radius:"4px",weight:"400",bg:"#111111",fg:"#FFFFFF"}}},
+  card:{cls:"card-t7"},motion:{dur:".2s"}}
+].map(defineTheme);
+const themeById=id=>THEMES.find(t=>t.id===(THEME_ALIASES[id]||id))||THEMES[0];
+/* 主题 → CSS 变量。界面（:root）与画廊缩略图（.tt 元素）共用 */
+function themeVars(th){
+  const p=th.palette,t=th.typography,s=th.shape,mk=th.map.marker,mo=th.motion;
+  const r=parseFloat(s.radius)||0;
+  const v={"--bg":p.bg,"--fg":p.fg,"--muted":p.muted,"--accent":p.accent,"--on-accent":p.onAccent,
+    "--topbar":p.topbar,"--on-topbar":p.onTopbar,"--panel":p.panel,"--line":p.line,"--ico":p.icon,
+    "--font-d":t.display,"--font-b":t.body,"--font-n":t.num,"--title-ls":t.titleSpacing,
+    "--radius":s.radius,"--radius-ctl":s.control,"--pill":s.pill,"--topbar-bd":s.topbarBorder,
+    "--sheet-r":r>0?Math.max(20,r)+"px":"0px",
+    "--map-bg":th.map.bg,"--mk-font":mk.font,"--dur":mo.dur,"--ease":mo.ease};
+  [["pin","mkp"],["se","mks"]].forEach(([k,pre])=>{
+    const o=mk[k];
+    v["--"+pre+"-size"]=o.size;v["--"+pre+"-fs"]=o.fontSize;v["--"+pre+"-w"]=o.weight;v["--"+pre+"-r"]=o.radius;
+    v["--"+pre+"-bg"]=o.bg;v["--"+pre+"-fg"]=o.fg;v["--"+pre+"-bd"]=o.border;v["--"+pre+"-sh"]=o.shadow;
+  });
+  return v;
+}
+function setVars(el,vars){Object.keys(vars).forEach(k=>el.style.setProperty(k,vars[k]));}
 /* ================= 全局状态 ================= */
 const state={
   theme:"cream",
@@ -543,11 +706,24 @@ function routeDurationMs(){
 }
 function persist(){
   store.save({
+    v:STATE_VERSION,
     theme:state.theme,
     route:state.route,
     pins:state.pins.map(p=>({id:p.id,lat:p.lat,lng:p.lng,name:p.name,text:p.text,createdAt:p.createdAt,photoId:p.photoId})),
     recStart:state.recStart
   });
+}
+/* 读取任意版本的存档（v1 无版本号），过滤坏数据；主题 id 失效时回落默认主题 */
+const validPt=p=>p&&isFinite(p.lat)&&isFinite(p.lng);
+function migrateState(s){
+  if(!isObj(s))return null;
+  return {
+    v:STATE_VERSION,
+    theme:themeById(s.theme).id,
+    route:Array.isArray(s.route)?s.route.filter(validPt):[],
+    pins:Array.isArray(s.pins)?s.pins.filter(validPt):[],
+    recStart:+s.recStart||0
+  };
 }
 
 /* ================= 地图 ================= */
@@ -560,58 +736,138 @@ function initMap(){
   routeLayer=L.layerGroup().addTo(map);
   pinLayer=L.layerGroup().addTo(map);
   seLayer=L.layerGroup().addTo(map);
-  applyTheme(state.theme,false);
-  if(navigator.geolocation){
+  setTiles(themeById(state.theme));
+  if(!fitToContent()&&navigator.geolocation&&!QA){
     navigator.geolocation.getCurrentPosition(
       pos=>map.setView([pos.coords.latitude,pos.coords.longitude],15),
       ()=>{}, {timeout:8000});
   }
   map.on("click",onMapClick);
 }
-function applyTheme(id,redraw=true){
-  state.theme=id;
-  const th=themeById(id);
-  document.body.dataset.theme=id;
-  const root=document.documentElement;
-  Object.keys(th.vars).forEach(k=>root.style.setProperty(k,th.vars[k]));
+/* 已有路线或地点时，打开页面先看到它们 */
+function fitToContent(){
+  const ll=state.route.concat(state.pins).map(p=>[p.lat,p.lng]);
+  if(!map||!ll.length)return false;
+  if(ll.length===1)map.setView(ll[0],15);
+  else map.fitBounds(ll,{padding:[40,40],maxZoom:16});
+  return true;
+}
+function setTiles(th){
+  if(!map)return;
   if(tileLayer)map.removeLayer(tileLayer);
-  tileLayer=L.tileLayer(th.tile,{maxZoom:19,className:th.tileClass,
+  tileLayer=L.tileLayer(th.map.tile,{maxZoom:19,crossOrigin:true,
     attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
-  document.querySelectorAll(".theme-chip").forEach(c=>c.classList.toggle("active",c.dataset.id===id));
+  const c=tileLayer.getContainer();
+  c.style.opacity=th.map.tileOpacity;c.style.filter=th.map.tileFilter;
+}
+function applyTheme(id,redraw=true){
+  const th=themeById(id);
+  state.theme=th.id;
+  const b=document.body,lay=Object.assign({},th.layout,QA?QA.layout:{});
+  b.dataset.theme=th.id;b.dataset.topbar=lay.topbar;b.dataset.toolbar=lay.toolbar;b.dataset.modal=lay.modal;
+  setVars(document.documentElement,themeVars(th));
+  const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=th.palette.topbar;
+  setTiles(th);
+  refreshGallery();
+  syncInsets();
   if(redraw){drawRoute();drawPins();}
   persist();
 }
-function buildThemeChips(){
-  const box=$("themeChips");box.innerHTML="";
+/* 悬浮式顶栏/工具栏会盖住地图，把占用高度告诉 HUD、地图控件、画廊和 toast */
+function syncInsets(){
+  const app=$("app"),tb=$("topbar"),bar=$("toolbar"),d=document.body.dataset,r=document.documentElement.style;
+  const tbBottom=tb.offsetTop+tb.offsetHeight,barH=app.clientHeight-bar.offsetTop;
+  r.setProperty("--gallery-top",tbBottom+(d.topbar==="float"?6:0)+"px");
+  r.setProperty("--overlay-top",d.topbar==="float"?tbBottom+"px":"0px");
+  r.setProperty("--overlay-bottom",d.toolbar==="pill"?barH+"px":"0px");
+  r.setProperty("--chrome-bottom",barH+"px");
+}
+/* ================= 主题画廊 ================= */
+const ICO_REC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/></svg>';
+const ICO_STOP='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8.5"/><rect x="8.6" y="8.6" width="6.8" height="6.8" rx="1" fill="currentColor" stroke="none"/></svg>';
+const gallery={cat:"全部",origin:null};
+/* 缩略图路线：坐标即像素（卡片内宽 106 × 128） */
+const TT_ROUTE="M10,92 C26,56 40,100 56,66 S86,34 94,46";
+function thumbRouteSVG(th){
+  const r=th.map.route,p=th.palette,k=.32;
+  const line=(c,w,extra)=>'<path d="'+TT_ROUTE+'" fill="none" stroke="'+c+'" stroke-width="'+w.toFixed(1)+'" stroke-linecap="round" stroke-linejoin="round"'+(extra||"")+'/>';
+  let s='<svg viewBox="0 0 106 128" aria-hidden="true">';
+  if(r.ink)s+=line(p.bg,6)+line(p.fg,3.4,' opacity=".9"');
+  else{
+    s+=line(r.casing,r.casingW*k)+line(r.color,r.weight*k);
+    if(r.innerDash)s+=line("#FFFFFF",.9,' stroke-dasharray="3 3"');
+  }
+  return s+"</svg>";
+}
+function buildGallery(){
+  const cats=["全部"].concat(Array.from(new Set(THEMES.map(t=>t.category))));
+  const cb=$("tgCats");cb.innerHTML="";
+  cats.forEach(c=>{
+    const b=document.createElement("button");
+    b.className="tg-cat";b.textContent=c;b.dataset.cat=c;
+    b.onclick=()=>{gallery.cat=c;refreshGallery();};
+    cb.appendChild(b);
+  });
+  const list=$("tgList");list.innerHTML="";
   THEMES.forEach(t=>{
     const b=document.createElement("button");
-    b.className="theme-chip"+(t.id===state.theme?" active":"");
-    b.dataset.id=t.id;
-    var rc=t.route.color||"#2B2B28",rw=t.route.weight||7,cc=t.route.casing||rc,cw=t.route.casingW||rw+6;
-    b.innerHTML='<span class="dots">'+t.dots.map(d=>'<i style="background:'+d+'"></i>').join("")+'</span>'
-      +'<svg class="rsw" width="58" height="14" viewBox="0 0 58 14"><line x1="5" y1="7" x2="53" y2="7" stroke="'+cc+'" stroke-width="'+(cw/2.4).toFixed(1)+'" stroke-linecap="round"/><line x1="5" y1="7" x2="53" y2="7" stroke="'+rc+'" stroke-width="'+(rw/2.4).toFixed(1)+'" stroke-linecap="round"/></svg>'
-      +'<span class="tname">'+t.name+"</span>";
-    b.onclick=()=>{applyTheme(t.id);toast("已切换："+t.name);};
-    box.appendChild(b);
+    b.className="tg-card";b.dataset.id=t.id;b.dataset.cat=t.category;
+    b.setAttribute("aria-label",t.name+"（"+t.category+"）");
+    const tt=document.createElement("div");
+    tt.className="tt";tt.dataset.topbar=t.layout.topbar;tt.dataset.toolbar=t.layout.toolbar;
+    setVars(tt,themeVars(t));
+    tt.innerHTML=thumbRouteSVG(t)
+      +'<span class="tt-mk" style="left:10px;top:92px"><div class="mkb-se">起</div></span>'
+      +'<span class="tt-mk" style="left:56px;top:66px"><div class="mkb-pin">1</div></span>'
+      +'<span class="tt-mk" style="left:94px;top:46px"><div class="mkb-se">终</div></span>'
+      +'<div class="tt-top">Daymark</div><div class="tt-bar"><i></i><i></i><i></i><i></i></div>';
+    b.appendChild(tt);
+    b.insertAdjacentHTML("beforeend",'<span class="tg-badge">当前</span><span class="tg-name">'+esc(t.name)+'</span><span class="tg-meta">'+esc(t.category+" · "+t.desc)+'</span>');
+    b.onclick=()=>{if(t.id!==state.theme){applyTheme(t.id);toast("已切换："+t.name);}};
+    list.appendChild(b);
   });
+  refreshGallery();
+}
+function refreshGallery(){
+  document.querySelectorAll(".tg-cat").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.cat===gallery.cat)));
+  document.querySelectorAll(".tg-card").forEach(b=>{
+    const cur=b.dataset.id===state.theme;
+    b.classList.toggle("is-current",cur);
+    b.setAttribute("aria-pressed",String(cur));
+    b.hidden=gallery.cat!=="全部"&&b.dataset.cat!==gallery.cat;
+  });
+  const changed=gallery.origin&&gallery.origin!==state.theme;
+  $("tgActions").classList.toggle("show",!!changed);
+  if(changed)$("tgTip").textContent="已从「"+themeById(gallery.origin).name+"」切换";
+}
+function openGallery(){
+  gallery.origin=state.theme;
+  $("themeGallery").classList.add("open");$("themeToggle").setAttribute("aria-expanded","true");
+  syncInsets();refreshGallery();
+  const cur=document.querySelector(".tg-card.is-current");
+  if(cur)cur.scrollIntoView({block:"nearest",inline:"center"});
+}
+function closeGallery(){
+  gallery.origin=null;
+  $("themeGallery").classList.remove("open");$("themeToggle").setAttribute("aria-expanded","false");
 }
 /* ================= 路线绘制（路线是主角） ================= */
 function drawRoute(){
-  if(typeof L==="undefined")return;
+  if(typeof L==="undefined"||!routeLayer)return;
   routeLayer.clearLayers();seLayer.clearLayers();
   const pts=state.route,th=themeById(state.theme);
   if(pts.length<2){updateRecHud();return;}
   const ll=pts.map(p=>[p.lat,p.lng]);
-  if(th.route.ink){
+  const r=th.map.route;
+  if(r.ink){
     /* 水墨飞白：按段调粗细 */
     for(let i=0;i<ll.length-1;i+=4){
       const seg=ll.slice(i,i+5);if(seg.length<2)continue;
       const w=6+Math.round(8*Math.abs(Math.sin(i*1.7)));
-      L.polyline(seg,{color:"#F5F1E8",weight:w+6,opacity:.85,lineCap:"round"}).addTo(routeLayer);
-      L.polyline(seg,{color:"#2B2B28",weight:w,opacity:.9,lineCap:"round"}).addTo(routeLayer);
+      L.polyline(seg,{color:th.palette.bg,weight:w+6,opacity:.85,lineCap:"round"}).addTo(routeLayer);
+      L.polyline(seg,{color:th.palette.fg,weight:w,opacity:.9,lineCap:"round"}).addTo(routeLayer);
     }
   }else{
-    const r=th.route;
     L.polyline(ll,{color:r.casing,weight:r.casingW,opacity:.95,lineCap:"round",lineJoin:"round"}).addTo(routeLayer);
     L.polyline(ll,{color:r.color,weight:r.weight,opacity:1,lineCap:"round",lineJoin:"round"}).addTo(routeLayer);
     if(r.innerDash){
@@ -619,10 +875,10 @@ function drawRoute(){
     }
   }
   /* 起终点标记 */
-  const mk=(p,cls,txt)=>{
-    L.marker([p.lat,p.lng],{icon:L.divIcon({className:"mk-se",html:'<div class="'+cls+'">'+txt+"</div>",iconSize:[36,36],iconAnchor:[18,18]}),interactive:false}).addTo(seLayer);
+  const mk=(p,txt)=>{
+    L.marker([p.lat,p.lng],{icon:L.divIcon({className:"mk-se",html:'<div class="mkb-se">'+txt+"</div>",iconSize:[36,36],iconAnchor:[18,18]}),interactive:false,keyboard:false}).addTo(seLayer);
   };
-  mk(pts[0],"","起");mk(pts[pts.length-1],"","终");
+  mk(pts[0],"起");mk(pts[pts.length-1],"终");
   updateRecHud();
 }
 function pushRoutePoint(lat,lng,t){
@@ -641,6 +897,16 @@ function confirmOverwriteIfRoute(actionName,next){
   }
   next();
 }
+/* 记录按钮始终在工具栏：未记录时“开始记录”，记录中变为“结束记录” */
+function updateRecordUI(){
+  const b=$("btnRecord");
+  b.classList.toggle("active",state.recording);
+  b.setAttribute("aria-pressed",String(state.recording));
+  $("recLbl").textContent=state.recording?"结束记录":"开始记录";
+  $("recIco").innerHTML=state.recording?ICO_STOP:ICO_REC;
+  $("recHud").classList.toggle("show",state.recording);
+  $("btnPause").textContent=state.paused?"继续":"暂停";
+}
 function startRecord(){
   if(!navigator.geolocation){toast("当前浏览器不支持定位");return;}
   confirmOverwriteIfRoute("开始记录",()=>{
@@ -648,8 +914,7 @@ function startRecord(){
     state.recStart=Date.now();
     state.watchId=navigator.geolocation.watchPosition(onGpsPos,onGpsErr,
       {enableHighAccuracy:true,maximumAge:3000,timeout:15000});
-    $("recHud").classList.add("show");
-    $("btnRecord").classList.add("active");
+    updateRecordUI();
     toast("开始记录，祝旅途愉快");
   });
 }
@@ -667,19 +932,17 @@ function onGpsErr(err){
 function pauseRecord(){
   if(!state.recording||state.paused)return;
   state.paused=true;state.pauseStart=Date.now();
-  $("btnPause").textContent="继续";toast("已暂停");
+  updateRecordUI();toast("已暂停");
 }
 function resumeRecord(){
   if(!state.recording||!state.paused)return;
   state.paused=false;state.pausedMs+=Date.now()-state.pauseStart;
-  $("btnPause").textContent="暂停";toast("继续记录");
+  updateRecordUI();toast("继续记录");
 }
 function stopRecord(){
   if(state.watchId!==null){navigator.geolocation.clearWatch(state.watchId);state.watchId=null;}
   state.recording=false;state.paused=false;
-  $("recHud").classList.remove("show");
-  $("btnRecord").classList.remove("active");
-  $("btnPause").textContent="暂停";
+  updateRecordUI();
   drawRoute();persist();
   const km=(routeDistanceM()/1000).toFixed(2);
   toast("记录结束：约 "+km+" km，用时 "+fmtTime(routeDurationMs()));
@@ -692,14 +955,14 @@ function updateRecHud(){
 setInterval(updateRecHud,1000);
 /* ================= Pin 地点 ================= */
 const pinMarkers={};
+const sortedPins=()=>state.pins.slice().sort((a,b)=>a.createdAt-b.createdAt);
 function drawPins(){
-  if(typeof L==="undefined")return;
+  if(typeof L==="undefined"||!pinLayer)return;
   pinLayer.clearLayers();
   Object.keys(pinMarkers).forEach(k=>delete pinMarkers[k]);
-  const sorted=state.pins.slice().sort((a,b)=>a.createdAt-b.createdAt);
-  sorted.forEach((p,i)=>{
-    const m=L.marker([p.lat,p.lng],{draggable:true,
-      icon:L.divIcon({className:"mk-pin",html:"<div>"+(i+1)+"</div>",iconSize:[34,34],iconAnchor:[17,17]})});
+  sortedPins().forEach((p,i)=>{
+    const m=L.marker([p.lat,p.lng],{draggable:true,title:(i+1)+". "+(p.name||"第"+(i+1)+"站"),
+      icon:L.divIcon({className:"mk-pin",html:'<div class="mkb-pin">'+(i+1)+"</div>",iconSize:[34,34],iconAnchor:[17,17]})});
     m.on("click",()=>openPinModal(p));
     m.on("dragend",()=>{const ll=m.getLatLng();p.lat=ll.lat;p.lng=ll.lng;persist();});
     m.addTo(pinLayer);pinMarkers[p.id]=m;
@@ -709,13 +972,13 @@ function enterPinMode(){
   state.pinMode=true;
   $("pinHudTxt").textContent=state.pins.length?"点击地图添加地点，点击编号编辑/删除":"点击地图放置地点";
   $("pinHud").classList.add("show");
-  $("btnPin").classList.add("active");
+  $("btnPin").classList.add("active");$("btnPin").setAttribute("aria-pressed","true");
   $("map").style.cursor="crosshair";
 }
 function exitPinMode(){
   state.pinMode=false;
   $("pinHud").classList.remove("show");
-  $("btnPin").classList.remove("active");
+  $("btnPin").classList.remove("active");$("btnPin").setAttribute("aria-pressed","false");
   $("map").style.cursor="";
 }
 function onMapClick(e){
@@ -724,6 +987,19 @@ function onMapClick(e){
     openPinModal(null,{lat:e.latlng.lat,lng:e.latlng.lng});
   }
 }
+/* ================= 弹窗 ================= */
+let modalReturnFocus=null;
+function openModal(id){
+  modalReturnFocus=document.activeElement;
+  $(id).classList.add("show");
+  $(id).querySelector(".modal").focus({preventScroll:true});
+}
+function closeModal(id){
+  $(id).classList.remove("show");
+  if(modalReturnFocus&&modalReturnFocus.focus)modalReturnFocus.focus({preventScroll:true});
+  modalReturnFocus=null;
+}
+const openModals=()=>Array.from(document.querySelectorAll(".modal-mask.show"));
 function openPinModal(pin,latlng){
   state.editingPin=pin||null;
   state.pendingPinLatLng=pin?{lat:pin.lat,lng:pin.lng}:latlng;
@@ -738,9 +1014,9 @@ function openPinModal(pin,latlng){
     photoStore.get(pin.photoId).then(d=>{if(d){prev.src=d;prev.style.display="block";}});
   }
   $("pinDelete").style.display=pin?"block":"none";
-  $("pinModalMask").classList.add("show");
+  openModal("pinModalMask");
 }
-function closePinModal(){$("pinModalMask").classList.remove("show");}
+function closePinModal(){closeModal("pinModalMask");}
 function compressImage(file){
   return new Promise((res,rej)=>{
     const url=URL.createObjectURL(file);
@@ -784,47 +1060,125 @@ async function deletePin(){
   state.pins=state.pins.filter(q=>q.id!==p.id);
   drawPins();persist();closePinModal();toast("已删除");
 }
-/* ================= 刷新清空 ================= */
+/* ================= 清空 ================= */
 function clearAll(){
   state.route=[];
   const ids=state.pins.map(p=>p.photoId).filter(Boolean);
   state.pins=[];
   ids.forEach(id=>photoStore.del(id));
   drawRoute();drawPins();persist();
-  $("clearModalMask").classList.remove("show");
+  closeModal("clearModalMask");
   toast("已清空，开始新的一天吧");
 }
 function clearRouteOnly(){
   state.route=[];
   drawRoute();persist();
-  $("clearModalMask").classList.remove("show");
+  closeModal("clearModalMask");
   toast("路线已清空，地点保留");
 }
 
 /* ================= 导出打卡卡片 ================= */
-function esc(s){return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function pinTimeStr(ts){const d=new Date(ts);return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");}
 async function buildCardData(){
   const th=themeById(state.theme);
-  let mapShot=null,routeSVG=null;
+  let mapShot=null,mapMarks=[],routeSVG=null;
   if(exportRouteOnly){
     routeSVG=buildRouteSVG(th);
   }else{
-    document.body.classList.add("capturing");
-    try{
-      if(window.html2canvas){
-        const c=await html2canvas($("map"),{useCORS:true,logging:false,backgroundColor:"#e8e4da"});
-        mapShot=c.toDataURL("image/png");
-      }
-    }catch(e){mapShot=null;}
-    document.body.classList.remove("capturing");
+    try{const r=await renderMapImage(th);if(r){mapShot=r.src;mapMarks=r.marks;}}catch(e){mapShot=null;}
+    /* 兜底：瓦片跨域失败等情况下退回整块截图（无主题滤镜） */
+    if(!mapShot){
+      document.body.classList.add("capturing");
+      try{
+        if(window.html2canvas){
+          const c=await html2canvas($("map"),{useCORS:true,logging:false,backgroundColor:"#e8e4da"});
+          mapShot=c.toDataURL("image/png");
+        }
+      }catch(e){mapShot=null;}
+      document.body.classList.remove("capturing");
+    }
   }
-  const pins=state.pins.slice().sort((a,b)=>a.createdAt-b.createdAt);
+  const pins=sortedPins();
   for(const p of pins){p._img=p.photoId?await photoStore.get(p.photoId):null;}
-  return {th,mapShot,routeSVG,routeOnly:exportRouteOnly,pins,
+  return {th,mapShot,mapMarks,routeSVG,routeOnly:exportRouteOnly,pins,
     km:(routeDistanceM()/1000).toFixed(2),
     dur:fmtTime(routeDurationMs()),
     dateStr:fmtDate(new Date())};
+}
+/* 导出用地图：自绘 canvas。html2canvas 不支持 CSS filter，且截 Leaflet 平移后的图层会错位、缺块。
+ * 按路线与地点重新取景，尺寸与该主题卡片的地图区一致；标记返回为百分比坐标，由卡片用 HTML 叠加。 */
+function cardMapBox(cls){
+  const probe=document.createElement("div");
+  probe.className="exp-card "+cls;probe.innerHTML='<div class="ec-map"></div>';
+  $("cardStage").appendChild(probe);
+  const m=probe.firstChild,box={w:m.clientWidth||936,h:m.clientHeight||520};   // 不含边框，与图片实际显示尺寸一致
+  probe.remove();return box;
+}
+function loadTileImg(src){
+  return new Promise(res=>{
+    const img=new Image(),tm=setTimeout(()=>res(null),8000);
+    img.crossOrigin="anonymous";
+    img.onload=()=>{clearTimeout(tm);res(img);};
+    img.onerror=()=>{clearTimeout(tm);res(null);};
+    img.src=src;
+  });
+}
+function drawRouteCanvas(g,th,pts,s){
+  if(pts.length<2)return;
+  const r=th.map.route;
+  g.lineCap="round";g.lineJoin="round";
+  const stroke=(seg,color,w,alpha,dash)=>{
+    g.beginPath();seg.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));
+    g.strokeStyle=color;g.lineWidth=w*s;g.globalAlpha=alpha;g.setLineDash(dash||[]);g.stroke();
+  };
+  if(r.ink){
+    for(let i=0;i<pts.length-1;i+=4){
+      const seg=pts.slice(i,i+5);if(seg.length<2)continue;
+      const w=6+Math.round(8*Math.abs(Math.sin(i*1.7)));
+      stroke(seg,th.palette.bg,w+6,.85);stroke(seg,th.palette.fg,w,.9);
+    }
+  }else{
+    stroke(pts,r.casing,r.casingW,.95);stroke(pts,r.color,r.weight,1);
+    if(r.innerDash)stroke(pts,"#FFFFFF",2.2,.9,[9*s,8*s]);
+  }
+  g.globalAlpha=1;g.setLineDash([]);
+}
+async function renderMapImage(th){
+  if(!map)return null;
+  const {w:W,h:H}=cardMapBox(th.card.cls),PAD=.14,Z0=10;
+  const pts=state.route.concat(state.pins).map(p=>[p.lat,p.lng]);
+  const bounds=pts.length?L.latLngBounds(pts):map.getBounds();
+  const a=map.project(bounds.getNorthWest(),Z0),b=map.project(bounds.getSouthEast(),Z0);
+  const dx=b.x-a.x,dy=b.y-a.y;
+  let fit=dx>1e-6||dy>1e-6
+    ?Z0+Math.log2(Math.min(W*(1-2*PAD)/Math.max(dx,1e-6),H*(1-2*PAD)/Math.max(dy,1e-6)))
+    :16;
+  if(!pts.length)fit=map.getZoom();
+  fit=clamp(fit,2,17);
+  const z=Math.round(fit),k=Math.pow(2,fit-z);
+  const c=map.project(bounds.getCenter(),z),ox=c.x-W/2/k,oy=c.y-H/2/k,n=1<<z;
+  /* 先以不透明方式拼瓦片，再整体叠透明度与滤镜，避免缝隙处叠色 */
+  const tiles=document.createElement("canvas");tiles.width=W;tiles.height=H;
+  const tg=tiles.getContext("2d"),jobs=[];
+  for(let tx=Math.floor(ox/256);tx<=Math.floor((ox+W/k)/256);tx++){
+    for(let ty=Math.max(0,Math.floor(oy/256));ty<=Math.min(n-1,Math.floor((oy+H/k)/256));ty++){
+      const url=L.Util.template(th.map.tile,{s:"a",r:"",z,x:((tx%n)+n)%n,y:ty});
+      jobs.push(loadTileImg(url).then(img=>{
+        if(img)tg.drawImage(img,Math.floor((tx*256-ox)*k),Math.floor((ty*256-oy)*k),Math.ceil(256*k)+1,Math.ceil(256*k)+1);
+      }));
+    }
+  }
+  await Promise.all(jobs);
+  const cv=document.createElement("canvas");cv.width=W;cv.height=H;
+  const g=cv.getContext("2d");
+  g.fillStyle=th.map.bg;g.fillRect(0,0,W,H);
+  g.save();g.globalAlpha=th.map.tileOpacity;g.filter=th.map.tileFilter;g.drawImage(tiles,0,0);g.restore();
+  const P=p=>{const q=map.project([p.lat,p.lng],z);return [(q.x-ox)*k,(q.y-oy)*k];};
+  drawRouteCanvas(g,th,state.route.map(P),1.5);
+  const marks=[],mark=(p,cls,txt)=>{const q=P(p);marks.push({x:q[0]/W*100,y:q[1]/H*100,cls,txt});};
+  if(state.route.length>=2){mark(state.route[0],"mkb-se","起");mark(state.route[state.route.length-1],"mkb-se","终");}
+  sortedPins().forEach((p,i)=>mark(p,"mkb-pin",String(i+1)));
+  return {src:cv.toDataURL("image/png"),marks};   // 瓦片跨域被拒时这里会抛错，由调用方兜底
 }
 function buildRouteSVG(th){
   const pts=state.route;
@@ -844,17 +1198,16 @@ function buildRouteSVG(th){
   H=Math.max(320,Math.min(600,H));
   const X=lng=>((lng*kx-minX)/(maxX-minX)*W).toFixed(1);
   const Y=lat=>((maxY-lat)/(maxY-minY)*H).toFixed(1);
-  const v=th.vars,accent=v["--accent"],fg=v["--fg"],bg=v["--bg"];
-  const font=(v["--font-b"]||"sans-serif").replace(/"/g,"'");
+  const p=th.palette,font=th.typography.body.replace(/"/g,"'");
   let inner="";
-  const r=th.route;
+  const r=th.map.route;
   if(r.ink){
     for(let i=0;i<pts.length-1;i+=4){
       const seg=pts.slice(i,i+5);if(seg.length<2)continue;
       const w=8+Math.round(10*Math.abs(Math.sin(i*1.7)));
       const pl=seg.map(q=>X(q.lng)+","+Y(q.lat)).join(" ");
-      inner+='<polyline points="'+pl+'" fill="none" stroke="#F5F1E8" stroke-width="'+(w+8)+'" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/>';
-      inner+='<polyline points="'+pl+'" fill="none" stroke="#2B2B28" stroke-width="'+w+'" stroke-linecap="round" stroke-linejoin="round" opacity=".92"/>';
+      inner+='<polyline points="'+pl+'" fill="none" stroke="'+p.bg+'" stroke-width="'+(w+8)+'" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/>';
+      inner+='<polyline points="'+pl+'" fill="none" stroke="'+p.fg+'" stroke-width="'+w+'" stroke-linecap="round" stroke-linejoin="round" opacity=".92"/>';
     }
   }else{
     const line=pts.map(q=>X(q.lng)+","+Y(q.lat)).join(" ");
@@ -862,24 +1215,25 @@ function buildRouteSVG(th){
     inner+='<polyline points="'+line+'" fill="none" stroke="'+r.color+'" stroke-width="'+(r.weight*1.5).toFixed(1)+'" stroke-linecap="round" stroke-linejoin="round"/>';
     if(r.innerDash)inner+='<polyline points="'+line+'" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-dasharray="12 10" stroke-linecap="round" opacity=".9"/>';
   }
-  const dot=(p,txt,fill,tc,rad,fs)=>{
-    const cx=X(p.lng),cy=Y(p.lat);
+  const dot=(pt,txt,fill,tc,rad,fs)=>{
+    const cx=X(pt.lng),cy=Y(pt.lat);
     return '<circle cx="'+cx+'" cy="'+cy+'" r="'+rad+'" fill="'+fill+'"/>'
       +'<text x="'+cx+'" y="'+(+cy+fs*.34).toFixed(1)+'" text-anchor="middle" font-size="'+fs+'" fill="'+tc+'" font-family="'+font+'">'+txt+'</text>';
   };
-  inner+=dot(pts[0],"起",accent,"#fff",26,26)+dot(pts[pts.length-1],"终",accent,"#fff",26,26);
-  state.pins.forEach((pn,i)=>{inner+=dot(pn,String(i+1),fg,bg,18,21);});
+  inner+=dot(pts[0],"起",p.accent,p.onAccent,26,26)+dot(pts[pts.length-1],"终",p.accent,p.onAccent,26,26);
+  sortedPins().forEach((pn,i)=>{inner+=dot(pn,String(i+1),p.fg,p.bg,18,21);});
   return '<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">'+inner+'</svg>';
 }
 function cardHTML(d){
-  const th=d.th;
+  const th=d.th,c=th.card;
+  const date='<div class="ec-date" data-f="date" contenteditable="true">'+esc(d.dateStr)+'</div>';
+  const deco='<div class="ec-deco" data-f="deco" contenteditable="true">'+esc(c.deco)+'</div>';
   let head="";
-  if(th.id==="brutalist"){
-    head='<div class="ec-head"><div class="ec-date" data-f="date" contenteditable="true">'+esc(d.dateStr)+'</div><div class="ec-deco" data-f="deco" contenteditable="true">good day // trip</div></div>';
-  }else if(th.id==="ink"){
-    head='<div class="ec-head">'
-      +'<div class="ec-date" data-f="date" contenteditable="true">'+esc(d.dateStr)+'</div>'
-      +'<div><div class="ec-title-h">Daymark</div><div class="ec-deco" data-f="deco" contenteditable="true">good day</div><div class="ec-seal">旅</div></div>'
+  if(c.head==="block"){
+    head='<div class="ec-head">'+date+deco+'</div>';
+  }else if(c.head==="ink"){
+    head='<div class="ec-head">'+date
+      +'<div><div class="ec-title-h">Daymark</div>'+deco+'<div class="ec-seal">旅</div></div>'
       +'<div class="ec-inkart"><svg viewBox="0 0 600 320" preserveAspectRatio="xMaxYMax slice" aria-hidden="true">'
       +'<circle cx="470" cy="72" r="30" fill="#B03A2E" opacity=".8"/>'
       +'<path d="M-10,250 L110,130 L190,195 L300,70 L410,185 L500,110 L610,195 L610,330 L-10,330 Z" fill="#2B2B28" opacity=".10"/>'
@@ -887,7 +1241,7 @@ function cardHTML(d){
       +'<path d="M-10,300 L120,220 L240,275 L360,215 L480,280 L610,230 L610,330 L-10,330 Z" fill="#2B2B28" opacity=".22"/>'
       +'</svg></div></div>';
   }else{
-    head='<div class="ec-head"><div class="ec-date" data-f="date" contenteditable="true">'+esc(d.dateStr)+'</div><div class="ec-deco" data-f="deco" contenteditable="true">good day</div><div class="ec-rule"></div></div>';
+    head='<div class="ec-head">'+date+deco+'<div class="ec-rule"></div></div>';
   }
   let mapHtml;
   if(d.routeOnly){
@@ -896,7 +1250,9 @@ function cardHTML(d){
       :'<div class="ec-map" style="display:flex;align-items:center;justify-content:center;background:#00000008;font-size:28px;opacity:.6">还没有路线，开始记录后这里会显示你的轨迹</div>';
   }else{
     mapHtml=d.mapShot
-      ?'<div class="ec-map"><img src="'+d.mapShot+'" alt="路线图"></div>'
+      ?'<div class="ec-map"><img src="'+d.mapShot+'" alt="路线图">'
+        +d.mapMarks.map(m=>'<span class="ec-mk" style="left:'+m.x.toFixed(2)+'%;top:'+m.y.toFixed(2)+'%"><div class="'+m.cls+'">'+m.txt+'</div></span>').join("")
+        +'</div>'
       :'<div class="ec-map" style="display:flex;align-items:center;justify-content:center;background:#00000010;font-size:28px;opacity:.6">地图截图失败，可直接截屏保存</div>';
   }
   const stats='<div class="ec-stats">'
@@ -905,7 +1261,7 @@ function cardHTML(d){
     +'<div class="ec-stat"><b>'+d.pins.length+'</b><span>打卡 SPOTS</span></div></div>';
   let pinsHtml='<div class="ec-pins">';
   d.pins.forEach((p,i)=>{
-    pinsHtml+='<div class="ec-pin">'+(th.id==="playful"?'<div class="ec-tape"></div>':"")
+    pinsHtml+='<div class="ec-pin">'+(c.tape?'<div class="ec-tape"></div>':"")
       +(p._img?'<img src="'+p._img+'" alt="打卡照片">':"")
       +'<div class="t"><b>'+(i+1)+". "+esc(p.name||"第"+(i+1)+"站")+'</b>'
       +(p.text?'<p>'+esc(p.text)+'</p>':"")
@@ -913,8 +1269,8 @@ function cardHTML(d){
   });
   if(!d.pins.length)pinsHtml+='<div style="font-size:26px;opacity:.45">今天还没有 pin 地点，路过的地方值得被记住</div>';
   pinsHtml+="</div>";
-  const cta=th.id==="brutalist"?'<div class="ec-cta">TODAY&rsquo;S TRIP →</div>':"";
-  const grain=th.id==="cream"?'<div class="grain"></div>':"";
+  const cta=c.cta?'<div class="ec-cta">'+c.cta+'</div>':"";
+  const grain=c.grain?'<div class="grain"></div>':"";
   return head+mapHtml+stats+pinsHtml+cta+grain+'<div class="ec-foot"></div>';
 }
 let stageCardEl=null;
@@ -922,7 +1278,7 @@ let exportRouteOnly=false;
 try{exportRouteOnly=localStorage.getItem("daymark_routeOnly")==="1";}catch(e){}
 async function openExport(){
   if(!window.html2canvas){toast("导出组件加载失败，请检查网络后重试");return;}
-  $("exportModalMask").classList.add("show");
+  openModal("exportModalMask");
   $("routeOnlyToggle").checked=exportRouteOnly;
   await renderExportPreview();
 }
@@ -931,13 +1287,13 @@ async function renderExportPreview(){
   const d=await buildCardData();
   const th=d.th;
   stageCardEl=document.createElement("div");
-  stageCardEl.className="exp-card "+th.card;
+  stageCardEl.className="exp-card "+th.card.cls;
   stageCardEl.id="stageCard";
   stageCardEl.innerHTML=cardHTML(d);
   $("cardStage").innerHTML="";$("cardStage").appendChild(stageCardEl);
   /* 预览用克隆，编辑同步回 stage */
   const pv=document.createElement("div");
-  pv.className="exp-card "+th.card;pv.innerHTML=cardHTML(d);
+  pv.className="exp-card "+th.card.cls;pv.innerHTML=cardHTML(d);
   const ps=$("previewScale");ps.innerHTML="";ps.appendChild(pv);
   pv.querySelectorAll("[data-f]").forEach(elm=>{
     elm.addEventListener("input",()=>{
@@ -945,12 +1301,13 @@ async function renderExportPreview(){
       if(t)t.textContent=elm.textContent;
     });
   });
-  requestAnimationFrame(()=>{
+  await new Promise(res=>requestAnimationFrame(()=>{
     const w=$("previewScroll").clientWidth||340;
     const s=Math.min(1,w/1080);
     ps.style.width="1080px";var ph=pv.offsetHeight||1440;ps.style.height=(ph*s)+"px";
     pv.style.transform="scale("+s+")";pv.style.transformOrigin="top left";
-  });
+    res();
+  }));
   toast("预览已生成，虚线文字可点击修改");
 }
 async function doExport(){
@@ -984,20 +1341,105 @@ async function doExport(){
     fetch("sw.js",{method:"HEAD"}).then(r=>{if(r.ok)return navigator.serviceWorker.register("sw.js");}).catch(()=>{});
   }
 })();
+/* ================= 验收：夹具与检查 ================= */
+const QA_SCENES={
+  full:       {route:true, pins:"photos"},             // 多照片、混合长短文本
+  long:       {route:true, pins:"long"},               // 长地点名、满 140 字
+  nophoto:    {route:true, pins:"plain"},              // 无照片
+  noroute:    {route:false,pins:"photos"},             // 无路线
+  empty:      {route:false,pins:"none"},               // 全空
+  recording:  {route:true, pins:"plain",recording:true},
+  pin:        {route:true, pins:"long",open:"pin"},     // 地点编辑弹窗
+  clear:      {route:true, pins:"plain",open:"clear"},
+  gallery:    {route:true, pins:"photos",open:"gallery"},
+  export:     {route:true, pins:"photos",open:"export"},
+  exportroute:{route:true, pins:"photos",open:"export",routeOnly:true}
+};
+function qaPhoto(w,h,c1,c2){
+  const c=document.createElement("canvas");c.width=w;c.height=h;const g=c.getContext("2d");
+  const gr=g.createLinearGradient(0,0,0,h);gr.addColorStop(0,c1);gr.addColorStop(1,c2);
+  g.fillStyle=gr;g.fillRect(0,0,w,h);
+  g.fillStyle="rgba(255,255,255,.85)";g.beginPath();g.arc(w*.72,h*.3,Math.min(w,h)*.11,0,7);g.fill();
+  g.fillStyle="rgba(0,0,0,.28)";g.beginPath();g.moveTo(0,h);g.lineTo(w*.3,h*.55);g.lineTo(w*.55,h*.8);
+  g.lineTo(w*.8,h*.5);g.lineTo(w,h*.75);g.lineTo(w,h);g.fill();
+  return c.toDataURL("image/jpeg",.8);
+}
+async function loadQAFixture(sc){
+  const t0=Date.now()-2.5*3600e3,route=[];
+  for(let i=0;i<=140;i++){
+    const a=i/140*Math.PI*1.6;
+    route.push({lat:30.2445+Math.sin(a)*.012+Math.sin(i*.9)*.0004,lng:120.1405+Math.cos(a)*.016*(1+.2*Math.sin(a*3)),t:t0+i*60e3});
+  }
+  const at=(i,o)=>Object.assign({id:"qa"+i,lat:route[i].lat+.0006,lng:route[i].lng+.0006,createdAt:route[i].t,photoId:null,name:"",text:""},o);
+  const sets={
+    none:[],
+    plain:[at(20,{name:"断桥残雪",text:"湖面起了薄雾。"}),at(70,{name:"",text:""}),at(120,{name:"苏堤春晓",text:"柳树刚发芽，风很软。"})],
+    long:[at(20,{name:"一个名字特别特别长的地点用来测试标题换行和截断效果",text:"这是一段刚好写满一百四十个字的记录，用来检查卡片、弹窗和导出图在长文本下是否会溢出或者遮挡其他内容。今天走了很多路，看到了湖、山和很多人，傍晚的光线很好，适合拍照。我们在湖边坐了很久，聊了很多以前的事，也计划了下一次旅行的路线和要去的城市。"}),
+      at(90,{name:"WestLakeMusicFountainViewingPlatformNo3",text:"English-only name without spaces."})],
+    photos:[at(15,{name:"断桥残雪",text:"湖面起了薄雾。",photoId:"qp1"}),at(55,{name:"雷峰塔",text:"",photoId:"qp2"}),
+      at(95,{name:"",text:"没有名字，但有一张方图。",photoId:"qp3"}),at(130,{name:"苏堤春晓",text:"柳树刚发芽，风很软，适合慢慢走。"})]
+  };
+  state.route=sc.route?route:[];
+  state.recStart=sc.route?t0:0;
+  state.pins=sets[sc.pins]||[];
+  if(sc.pins==="photos"){
+    await photoStore.put("qp1",qaPhoto(1200,800,"#8EC5FC","#E0C3FC"));
+    await photoStore.put("qp2",qaPhoto(800,1200,"#F6D365","#FDA085"));
+    await photoStore.put("qp3",qaPhoto(900,900,"#84FAB0","#8FD3F4"));
+  }
+  if(sc.recording){state.recording=true;state.recStart=t0;}
+  exportRouteOnly=!!sc.routeOnly;
+}
+/* 主题配置检查：字段合法性 + 对比度。结果在 window.__daymarkQA 与角标中 */
+function hexRgb(h){
+  h=String(h).trim();
+  if(!/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(h))return null;
+  if(h.length===4)h="#"+h[1]+h[1]+h[2]+h[2]+h[3]+h[3];
+  return [1,3,5].map(i=>parseInt(h.substr(i,2),16));
+}
+function contrast(a,b){
+  const x=hexRgb(a),y=hexRgb(b);if(!x||!y)return null;
+  const lum=c=>{const v=c.map(n=>{n/=255;return n<=.03928?n/12.92:Math.pow((n+.055)/1.055,2.4);});return .2126*v[0]+.7152*v[1]+.0722*v[2];};
+  const l1=lum(x),l2=lum(y);return (Math.max(l1,l2)+.05)/(Math.min(l1,l2)+.05);
+}
+function runThemeChecks(){
+  const out=[],seen=new Set(),add=(id,level,msg)=>out.push({theme:id,level,msg});
+  THEMES.forEach(t=>{
+    if(!/^[a-z][a-z0-9-]*$/.test(t.id||""))add(t.id,"error","id 需为小写字母/数字/连字符");
+    if(seen.has(t.id))add(t.id,"error","id 重复");seen.add(t.id);
+    if(!t.name)add(t.id,"error","缺少 name");
+    Object.keys(LAYOUTS).forEach(k=>{if(LAYOUTS[k].indexOf(t.layout[k])<0)add(t.id,"error","layout."+k+" 不存在："+t.layout[k]);});
+    const p=t.palette,mk=t.map.marker;
+    [["fg","bg",4.5],["fg","panel",4.5],["onTopbar","topbar",4.5],["onAccent","accent",3],["muted","panel",3]].forEach(([a,b,min])=>{
+      const c=contrast(p[a],p[b]);
+      if(c!==null&&c<min)add(t.id,"warn",a+"/"+b+" 对比度 "+c.toFixed(2)+" < "+min);
+    });
+    [["pin",mk.pin],["se",mk.se]].forEach(([k,o])=>{
+      const c=contrast(o.fg,o.bg);if(c!==null&&c<3)add(t.id,"warn","marker."+k+" 对比度 "+c.toFixed(2)+" < 3");
+    });
+  });
+  /* 存档兼容：旧版无版本号存档、未知主题、坏数据 */
+  const m1=migrateState({theme:"ink",route:[{lat:1,lng:2,t:0}],pins:[],recStart:5});
+  if(!m1||m1.theme!=="ink"||m1.route.length!==1||m1.recStart!==5)add("-","error","v1 存档迁移失败");
+  const m2=migrateState({theme:"no-such-theme",route:[{lat:"x"}],pins:null});
+  if(!m2||m2.theme!==THEMES[0].id||m2.route.length||m2.pins.length)add("-","error","异常存档未正确回落");
+  return out;
+}
 /* ================= 事件绑定与初始化 ================= */
 function bindEvents(){
-  $("themeToggle").onclick=()=>$("themeStrip").classList.toggle("open");
-  $("btnRecord").onclick=()=>{if(!state.recording)startRecord();};
+  $("themeToggle").onclick=()=>$("themeGallery").classList.contains("open")?closeGallery():openGallery();
+  $("tgUndo").onclick=()=>{const o=gallery.origin;if(o){applyTheme(o);toast("已恢复："+themeById(o).name);}};
+  $("btnRecord").onclick=()=>{state.recording?stopRecord():startRecord();};
   $("btnPause").onclick=()=>{state.paused?resumeRecord():pauseRecord();};
   $("btnStopRec").onclick=stopRecord;
   $("btnPin").onclick=()=>{state.pinMode?exitPinMode():enterPinMode();};
   $("btnCancelPin").onclick=exitPinMode;
-  $("btnClear").onclick=()=>$("clearModalMask").classList.add("show");
+  $("btnClear").onclick=()=>openModal("clearModalMask");
   $("btnClearAll").onclick=clearAll;
   $("btnClearRoute").onclick=clearRouteOnly;
-  $("btnClearCancel").onclick=()=>$("clearModalMask").classList.remove("show");
+  $("btnClearCancel").onclick=()=>closeModal("clearModalMask");
   $("btnExport").onclick=openExport;
-  $("btnExportClose").onclick=()=>$("exportModalMask").classList.remove("show");
+  $("btnExportClose").onclick=()=>closeModal("exportModalMask");
   $("routeOnlyToggle").onchange=e=>{exportRouteOnly=e.target.checked;
     try{localStorage.setItem("daymark_routeOnly",exportRouteOnly?"1":"0");}catch(err){}
     renderExportPreview();};
@@ -1005,7 +1447,14 @@ function bindEvents(){
   $("pinClose").onclick=closePinModal;
   $("pinSave").onclick=savePin;
   $("pinDelete").onclick=deletePin;
-  $("pinModalMask").addEventListener("click",e=>{if(e.target.id==="pinModalMask")closePinModal();});
+  document.querySelectorAll(".modal-mask").forEach(m=>m.addEventListener("click",e=>{if(e.target===m)closeModal(m.id);}));
+  document.addEventListener("keydown",e=>{
+    if(e.key!=="Escape")return;
+    const ms=openModals();
+    if(ms.length)closeModal(ms[ms.length-1].id);
+    else if($("themeGallery").classList.contains("open"))closeGallery();
+    else if(state.pinMode)exitPinMode();
+  });
   $("pinText").addEventListener("input",()=>{$("pinTextCount").textContent=String($("pinText").value.length);});
   $("pinPhotoInput").addEventListener("change",async e=>{
     const f=e.target.files[0];if(!f)return;
@@ -1015,24 +1464,51 @@ function bindEvents(){
       const p=$("pinImgPreview");p.src=d;p.style.display="block";
     }catch(err){toast("照片读取失败，请换一张试试");}
   });
+  if(window.ResizeObserver){const ro=new ResizeObserver(syncInsets);ro.observe($("topbar"));ro.observe($("toolbar"));}
+  window.addEventListener("resize",syncInsets);
 }
-function init(){
-  const saved=store.load();
-  if(saved){
-    state.theme=saved.theme||"cream";
-    state.route=saved.route||[];
-    state.pins=saved.pins||[];
-    state.recStart=saved.recStart||0;
+async function init(){
+  const sc=QA&&(QA_SCENES[QA.scene]||QA_SCENES.full);
+  if(sc){
+    state.theme=themeById(QA.theme).id;
+    await loadQAFixture(sc);
+  }else{
+    const saved=migrateState(store.load());
+    if(saved){
+      state.theme=saved.theme;
+      state.route=saved.route;
+      state.pins=saved.pins;
+      state.recStart=saved.recStart;
+    }
+    photoStore.open();
   }
   $("brandDate").textContent=fmtDate(new Date())+" · "+["周日","周一","周二","周三","周四","周五","周六"][new Date().getDay()];
-  buildThemeChips();
+  buildGallery();
   bindEvents();
+  applyTheme(state.theme,false);   // 先套主题，地图加载失败也不影响界面
   try{initMap();}catch(e){
     var mw=$("map");
     if(mw)mw.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#999;font-size:14px;padding:40px;text-align:center;line-height:1.8;">地图加载失败（可能是网络问题）<br>GPS 记录与导出功能仍可使用</div>';
   }
-  photoStore.open();
-  drawRoute();drawPins();
+  drawRoute();drawPins();updateRecordUI();
+  if(sc)runQA(sc);
+}
+async function runQA(sc){
+  const checks=runThemeChecks();
+  window.__daymarkQA={scene:QA.scene,themes:THEMES.map(t=>t.id),scenes:Object.keys(QA_SCENES),checks};
+  const badge=document.createElement("div");badge.id="qaBadge";
+  const n=checks.filter(c=>c.theme===state.theme||c.theme==="-").length;
+  badge.textContent="QA · "+QA.scene+" · "+state.theme+(n?" · "+n+" 项提示":"");
+  document.body.appendChild(badge);
+  if(checks.length)console.table(checks);
+  /* 等瓦片加载（最多 4 秒）再打开弹窗，便于截图 */
+  if(tileLayer)await new Promise(res=>{tileLayer.once("load",res);setTimeout(res,4000);});
+  if(sc.open==="pin")openPinModal(state.pins[0]);
+  else if(sc.open==="clear")openModal("clearModalMask");
+  else if(sc.open==="gallery")openGallery();
+  else if(sc.open==="export")await openExport();
+  await document.fonts.ready;
+  document.documentElement.dataset.qaReady="1";
 }
 document.addEventListener("DOMContentLoaded",init);
 </script>
