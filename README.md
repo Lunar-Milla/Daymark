@@ -151,7 +151,11 @@ node qa-shots.mjs --themes ink,playful --scenes full,export --viewports phone,la
 | Google Fonts：Fraunces、Noto Serif SC、Noto Sans SC、Courier Prime、Cormorant Garamond、Archivo Black、Inter Tight、Inter、Playfair Display、Poppins、ZCOOL KuaiLe | 界面与导出字体 | SIL Open Font License 1.1 |
 | [Playwright](https://playwright.dev/)（仅开发） | 批量验收截图 | Apache-2.0 |
 
-主题图形（齿孔、贴纸、印章、水墨山形等）都用 CSS / SVG 原创绘制，没有引用外部素材。新增代码或素材时，请在上表补充来源、版本和许可。本项目自身目前**尚未指定开源许可**。
+主题图形（齿孔、贴纸、印章、水墨山形等）都用 CSS / SVG 原创绘制，没有引用外部素材。新增代码或素材时，请在上表补充来源、版本和许可。
+
+## 许可
+
+本项目代码以 [MIT License](LICENSE) 发布。地图数据、字体和第三方库遵循各自的许可（见上表）；导出的打卡图中的地图底图须保留 “© OpenStreetMap contributors” 署名。
 
 ## 已知限制
 
