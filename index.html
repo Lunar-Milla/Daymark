@@ -1361,6 +1361,12 @@ async function renderMapImage(th){
   g.save();g.globalAlpha=th.map.tileOpacity;g.filter=th.map.tileFilter;g.drawImage(tiles,0,0);g.restore();
   const P=p=>{const q=map.project([p.lat,p.lng],z);return [(q.x-ox)*k,(q.y-oy)*k];};
   drawRouteCanvas(g,th,state.route.map(P),1.5);
+  /* OSM 瓦片许可要求署名，导出图里也要保留 */
+  const credit="© OpenStreetMap contributors";
+  g.font="16px system-ui,sans-serif";
+  const tw=g.measureText(credit).width;
+  g.fillStyle="rgba(255,255,255,.72)";g.fillRect(W-tw-16,H-26,tw+16,26);
+  g.fillStyle="#333";g.textBaseline="middle";g.fillText(credit,W-tw-8,H-13);
   const marks=[],mark=(p,cls,txt)=>{const q=P(p);marks.push({x:q[0]/W*100,y:q[1]/H*100,cls,txt});};
   if(state.route.length>=2){mark(state.route[0],"mkb-se","起");mark(state.route[state.route.length-1],"mkb-se","终");}
   sortedPins().forEach((p,i)=>mark(p,"mkb-pin",String(i+1)));
