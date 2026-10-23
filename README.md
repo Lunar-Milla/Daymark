@@ -20,8 +20,9 @@
 
 - **数据只保存在你自己的浏览器里**：路线和文字存在 localStorage，照片存在 IndexedDB，不会上传到任何服务器。清除浏览器网站数据、或换手机 / 换浏览器后，记录不会跟过去。
 - **定位需要 HTTPS 和定位权限**：请用上面的在线地址或其他 HTTPS 地址打开；直接双击本地 `index.html` 时，部分浏览器会拒绝定位。
-- **记录时请保持页面在前台**：手机锁屏或切到后台后，浏览器通常会暂停定位。刷新页面后已记录的路线会保留，但进行中的记录会停止，需要重新开始。
-- 需要联网加载地图瓦片、字体和两个脚本库（见文末）；离线时地图不可用，界面仍可打开。
+- **记录时尽量保持页面在前台**：记录中会请求屏幕常亮（支持的浏览器上），但手机锁屏或切到后台后，浏览器通常仍会暂停定位。
+- **刷新或重新打开页面会接着记录**：没点「结束记录」就关掉页面，下次打开会自动继续（暂停中的仍保持暂停），关闭期间的时间计入用时。
+- 需要联网加载地图瓦片、字体和两个脚本库（见文末）；离线时地图不可用，界面仍可打开。字体只加载当前主题用到的几款。
 
 ## 主题
 
@@ -100,7 +101,7 @@ node qa-shots.mjs --themes ink,playful --scenes full,export --viewports phone,la
    ```js
    {id:"island",name:"岛屿手账",category:"手账",desc:"便签与物件式工具栏",
     palette:{bg:"#F7F1E3",fg:"#2F3B34",muted:"#6F7A70",accent:"#2E8B7A",panel:"#FFFDF6",line:"rgba(47,59,52,.14)"},
-    typography:{display:'"Fraunces","Noto Serif SC",serif',body:'"Noto Sans SC",system-ui,sans-serif'},
+    typography:{display:'"Fraunces","Noto Serif SC",serif',body:'"Noto Sans SC",system-ui,sans-serif',fonts:["fraunces","sanssc","serifsc"]},
     shape:{radius:"18px",control:"14px"},
     layout:{topbar:"float",toolbar:"pill",modal:"dialog",status:"none",list:"none"},
     map:{tileOpacity:.3,tileFilter:"sepia(.2) saturate(.8)",
@@ -113,7 +114,7 @@ node qa-shots.mjs --themes ink,playful --scenes full,export --viewports phone,la
    | 维度 | 管什么 |
    | --- | --- |
    | `palette` | 背景、文字、强调色、顶栏色、面板、分隔线、图标色 |
-   | `typography` | 标题 / 正文 / 数字字体，标题字距 |
+   | `typography` | 标题 / 正文 / 数字字体，标题字距；`fonts` 列出需要加载的字体（`FONT_FAMILIES` 的键） |
    | `shape` | 面板圆角、按钮圆角、胶囊圆角、顶栏下边线 |
    | `layout` | 选用哪种布局变体（见下表） |
    | `map` | 瓦片透明度与滤镜、路线样式（含 `ink` 水墨笔触）、起终点与地点标记的尺寸 / 颜色 / 形状 |
@@ -138,6 +139,7 @@ node qa-shots.mjs --themes ink,playful --scenes full,export --viewports phone,la
 
 注意事项：
 
+- **用到新字体时**：在页面头部的 `FONT_FAMILIES` 里加一项（Google Fonts css2 的 family 参数），再写进主题的 `typography.fonts`。主题检查会报出“用到但没列入”的字体。
 - **主题 id 发布后不要改**：用户存档里保存的是 id。确实要改名时，在 `THEME_ALIASES` 里登记 `旧id → 新id`。
 - **导出卡片里别用 `box-shadow` 做圆角卡片的阴影**：html2canvas 会把它画成灰色实块，用浅色边框代替。
 - **导出卡片里有竖排文字时设 `card.vertical:true`**：html2canvas 不会把横排标点转成竖排字形，开启后会自动换成竖排标点。数字时间等短串建议用 `writing-mode:horizontal-tb` 单独横排。
@@ -161,8 +163,8 @@ node qa-shots.mjs --themes ink,playful --scenes full,export --viewports phone,la
 
 ## 已知限制
 
-- 刷新页面后，进行中的记录不会自动恢复。
-- 页面会一次加载全部主题字体，首次打开在慢网络下偏慢。
+- 中文字体（思源宋体 / 黑体）的样式表仍有约 300KB，首次打开或切换到新主题时，文字会先用系统字体显示，加载后再替换。
+- 页面在后台或锁屏时无法定位，这段时间的路线会以直线连接。
 - 导出底图需要瓦片服务器允许跨域；不允许时会自动退回整块截图，这时底图不带主题滤镜。
 
 更多计划和进度见 [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md)。
