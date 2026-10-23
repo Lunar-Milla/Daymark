@@ -129,6 +129,8 @@ button{font-family:inherit;border:none;background:none;color:inherit;cursor:poin
 .tt[data-topbar="masthead"] .tt-top{height:26px;font-size:15px;line-height:22px;font-style:italic;border-bottom:3px double var(--on-topbar)}
 .tt[data-topbar="tag"] .tt-top{left:6px;top:6px;right:auto;width:16px;height:52px;padding:4px 0;writing-mode:vertical-rl;line-height:14px;font-size:8px;
   border:1px solid var(--line);border-radius:2px;text-align:center}
+.tt[data-toolbar="text"] .tt-bar i{width:14px;height:2px;border-radius:0;background:var(--on-topbar);opacity:.7}
+.tt[data-toolbar="text"] .tt-bar i:first-child{background:var(--on-topbar);opacity:1}
 .tt[data-topbar="float"] .tt-top{left:5px;right:5px;top:5px;border:1px solid var(--line);border-radius:min(var(--radius),6px)}
 .tt[data-toolbar="pill"] .tt-bar{left:12px;right:12px;bottom:5px;border:1px solid var(--line);border-radius:var(--pill)}
 .tt[data-toolbar="blocks"] .tt-bar{justify-content:space-evenly}
@@ -228,7 +230,13 @@ body.capturing .leaflet-control-container{display:none}
  * status:  none | strip（顶栏下常驻里程/用时/地点数）
  * topbar 另有 masthead（刊头：大标题独占一行，日期与按钮在细线下）| tag（竖排题签，悬浮在地图左上角）
  * list:    none | strip（地图下方的地点目录）
+ * toolbar 另有 text（纯文字按钮，激活态为细下划线；图标仍在 DOM 中但隐藏）
  */
+[data-toolbar="text"] #toolbar{padding:12px 10px calc(14px + env(safe-area-inset-bottom))}
+[data-toolbar="text"] .tool-btn{padding:10px 2px;border-radius:0;font-size:13px;letter-spacing:.14em}
+[data-toolbar="text"] .tool-btn .ico{display:none}
+[data-toolbar="text"] .tool-btn.active{background:none;color:inherit;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:7px}
+[data-toolbar="text"] #btnRecord.active::before{content:"";display:inline-block;width:6px;height:6px;margin-bottom:3px;border-radius:50%;background:#E5484D;animation:blink 1.2s infinite}
 [data-topbar="masthead"] #topbar{display:grid;grid-template-columns:1fr auto;grid-template-areas:"title title" "date toggle";row-gap:6px;padding-bottom:8px}
 [data-topbar="masthead"] #brand{display:contents}
 [data-topbar="masthead"] #brandTitle{grid-area:title;font-size:40px;line-height:1;padding-bottom:6px;border-bottom:var(--mast-rule,1px solid currentColor)}
@@ -590,20 +598,48 @@ body[data-theme="playful"] #pinImgPreview{border-radius:20px;border:6px solid #f
 .card-t6 .ec-pin:nth-child(3n) .ec-no{background:#06D6A0}
 .card-t6 .ec-idx{display:none}
 
-/* ---- 主题：极简主义 minimal ---- */
+/* ---- 主题：极简主义 minimal ----
+ * 高留白顶栏与纯文字工具栏，细线弹窗与下划线输入框；地图标记简化为点和环。 */
+body[data-theme="minimal"] #topbar{padding:calc(20px + env(safe-area-inset-top)) 22px 16px}
+body[data-theme="minimal"] #brandTitle{font-size:22px;font-weight:600}
+body[data-theme="minimal"] #brandDate{margin-top:6px;letter-spacing:.2em}
+body[data-theme="minimal"] #themeToggle{padding:6px 0;border:none;background:none;font-size:12px;letter-spacing:.14em;
+  text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:5px}
+body[data-theme="minimal"] .tg-emoji{display:none}
+body[data-theme="minimal"] .mkb-se.is-start{background:#FFFFFF}
+body[data-theme="minimal"] .hud{box-shadow:none;border-color:#111;padding:6px 6px 6px 16px}
+body[data-theme="minimal"] .hud .rec-dot{width:6px;height:6px}
+body[data-theme="minimal"] .hud button{padding:7px 12px;font-size:12px;letter-spacing:.1em}
+body[data-theme="minimal"] .modal{padding:30px 26px calc(30px + env(safe-area-inset-bottom));border-top:1px solid #111}
+body[data-theme="minimal"] .modal h3{font-weight:600;font-size:20px;margin-bottom:26px;letter-spacing:.04em}
+body[data-theme="minimal"] .modal .row{margin-bottom:22px}
+body[data-theme="minimal"] .modal label{letter-spacing:.16em}
+body[data-theme="minimal"] .modal input[type=text],body[data-theme="minimal"] .modal textarea{border:none;border-bottom:1px solid #111;padding:8px 0;background:transparent}
+body[data-theme="minimal"] .modal input:focus,body[data-theme="minimal"] .modal textarea:focus{outline:none;border-bottom-width:2px}
+body[data-theme="minimal"] .photo-btn{border:1px solid #111;padding:9px 16px;font-size:13px}
+body[data-theme="minimal"] .btn{font-weight:500;letter-spacing:.12em;font-size:14px}
+body[data-theme="minimal"] .btn.ghost{border-color:#111}
+body[data-theme="minimal"] .btn.danger{background:#fff;color:#C4373C;border:1px solid #C4373C}
 .card-t7{--card-bg:#FFFFFF;--card-fg:#111111;font-family:"Noto Sans SC",system-ui,sans-serif}
-.card-t7 .ec-head{padding:88px 88px 30px}
-.card-t7 .ec-date{font-family:"Playfair Display","Noto Serif SC",serif;font-weight:600;font-size:72px}
+.card-t7 .ec-head{padding:120px 120px 40px}
+.card-t7 .ec-date{font-family:"Playfair Display","Noto Serif SC",serif;font-weight:600;font-size:64px}
 .card-t7 .ec-deco{font-size:26px;letter-spacing:.42em;opacity:.55}
 .card-t7 .ec-rule{height:1px;opacity:.4}
-.card-t7 .ec-map{margin:0 88px;border-radius:0;height:540px;filter:grayscale(.4)}
-.card-t7 .ec-stats{margin:40px 88px 0;border-top:1px solid #111;border-bottom:1px solid #111}
+.card-t7 .ec-map{margin:20px 120px 0;border-radius:0;height:520px}
+.card-t7 .ec-stats{margin:56px 120px 0;border-top:1px solid #111;border-bottom:none}
+.card-t7 .ec-stat{text-align:left;padding:28px 0 0}
+.card-t7 .ec-stat+.ec-stat{border-left:none}
 .card-t7 .ec-stat b{font-family:"Playfair Display","Noto Serif SC",serif;font-weight:600;font-size:60px}
 .card-t7 .ec-stat span{font-size:22px;letter-spacing:.3em}
-.card-t7 .ec-pins{margin:40px 88px 0}
-.card-t7 .ec-pin img{border-radius:0;border:1px solid #1112}
+.card-t7 .ec-pins{margin:64px 120px 0}
+.card-t7 .ec-pin{align-items:flex-start;gap:32px;padding:30px 0 0;margin-bottom:34px;border-top:1px solid #1111}
+.card-t7 .ec-no{display:block;order:0;flex:0 0 48px;padding-top:6px;font-size:20px;letter-spacing:.16em;opacity:.45}
+.card-t7 .ec-idx{display:none}
+.card-t7 .ec-pin .t{order:1}
+.card-t7 .ec-pin img{order:2;width:150px;height:150px;border-radius:0}
 .card-t7 .ec-pin .t b{font-weight:400;font-size:28px}
-.card-t7 .ec-foot{font-size:22px;letter-spacing:.4em}
+.card-t7 .ec-pin .t p{font-size:24px;line-height:1.7}
+.card-t7 .ec-foot{font-size:22px;letter-spacing:.4em;padding-bottom:110px}
 
 /* ============ 导出预览弹窗 ============ */
 .routeonly-row{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--fg);margin:2px 0 12px;cursor:pointer}
@@ -836,7 +872,7 @@ const photoStore={
  * 主题 id 会写进用户存储，发布后不要改名；确需改名时在 THEME_ALIASES 里登记旧 id。
  */
 const OSM_TILE="https://tile.openstreetmap.org/{z}/{x}/{y}.png";
-const LAYOUTS={topbar:["bar","float","split","masthead","tag"],toolbar:["dock","pill","blocks","bubbles"],modal:["sheet","dialog"],status:["none","strip"],list:["none","strip"]};
+const LAYOUTS={topbar:["bar","float","split","masthead","tag"],toolbar:["dock","pill","blocks","bubbles","text"],modal:["sheet","dialog"],status:["none","strip"],list:["none","strip"]};
 const THEME_ALIASES={};
 const THEME_DEFAULTS={
   name:"",category:"其他",desc:"",
@@ -924,15 +960,17 @@ const THEMES=[
       pin:{radius:"40% 60% 70% 30%/40% 50% 60% 50%",bg:"#EF476F",fg:"#FFFFFF",border:"2.5px solid #FFFFFF",shadow:"0 3px 10px rgba(239,71,111,.4)"},
       se:{radius:"40% 60% 70% 30%/40% 50% 60% 50%",bg:"#FFD166",fg:"#264653",border:"2.5px solid #FFFFFF"}}},
   card:{cls:"card-t6",tape:true},motion:{dur:".35s",ease:"cubic-bezier(.34,1.56,.64,1)"}},
- {id:"minimal",name:"极简主义",category:"设计",desc:"大留白与细线",
-  palette:{bg:"#FFFFFF",fg:"#111111",muted:"#8A8A8A",accent:"#111111",panel:"#FFFFFF",line:"rgba(0,0,0,.14)"},
-  typography:{display:'"Playfair Display","Noto Serif SC",serif',body:'"Noto Sans SC",system-ui,sans-serif',num:'"Playfair Display",serif'},
-  shape:{radius:"0px",control:"0px",pill:"0px"},
-  map:{tileOpacity:.22,tileFilter:"grayscale(1) brightness(1.2)",
-    route:{color:"#111111",casing:"#FFFFFF",weight:4,casingW:9},
-    marker:{pin:{size:"26px",fontSize:"12px",weight:"400",bg:"#111111",fg:"#FFFFFF",border:"none"},
-      se:{radius:"4px",weight:"400",bg:"#111111",fg:"#FFFFFF"}}},
-  card:{cls:"card-t7"},motion:{dur:".2s"}}
+ {id:"minimal",name:"极简主义",category:"设计",desc:"高留白、细线与纯文字按钮",
+  palette:{bg:"#FFFFFF",fg:"#111111",muted:"#767676",accent:"#111111",panel:"#FFFFFF",line:"rgba(0,0,0,.12)"},
+  typography:{display:'"Playfair Display","Noto Serif SC",serif',body:'"Noto Sans SC",system-ui,sans-serif',num:'"Playfair Display",serif',titleSpacing:".04em"},
+  shape:{radius:"0px",control:"0px",pill:"0px",topbarBorder:"1px solid rgba(0,0,0,.12)"},
+  layout:{toolbar:"text"},
+  map:{tileOpacity:.18,tileFilter:"grayscale(1) brightness(1.22)",
+    route:{color:"#111111",casing:"#FFFFFF",weight:3,casingW:8},
+    /* 简化标记：地点为小黑点编号；起点空心环、终点实心点，不显示文字 */
+    marker:{pin:{size:"18px",fontSize:"10px",weight:"500",bg:"#111111",fg:"#FFFFFF",border:"none"},
+      se:{size:"14px",fontSize:"0px",weight:"400",bg:"#111111",fg:"#FFFFFF",border:"2px solid #111111"}}},
+  card:{cls:"card-t7",deco:"a quiet day"},motion:{dur:".2s"}}
 ].map(defineTheme);
 const themeById=id=>THEMES.find(t=>t.id===(THEME_ALIASES[id]||id))||THEMES[0];
 /* 主题 → CSS 变量。界面（:root）与画廊缩略图（.tt 元素）共用 */
@@ -1090,9 +1128,9 @@ function buildGallery(){
     tt.className="tt";tt.dataset.topbar=t.layout.topbar;tt.dataset.toolbar=t.layout.toolbar;tt.dataset.status=t.layout.status;tt.dataset.list=t.layout.list;
     setVars(tt,themeVars(t));
     tt.innerHTML=thumbRouteSVG(t)
-      +'<span class="tt-mk" style="left:10px;top:92px"><div class="mkb-se">起</div></span>'
+      +'<span class="tt-mk" style="left:10px;top:92px"><div class="mkb-se is-start">起</div></span>'
       +'<span class="tt-mk" style="left:56px;top:66px"><div class="mkb-pin">1</div></span>'
-      +'<span class="tt-mk" style="left:94px;top:46px"><div class="mkb-se">终</div></span>'
+      +'<span class="tt-mk" style="left:94px;top:46px"><div class="mkb-se is-end">终</div></span>'
       +'<div class="tt-top">Daymark</div><div class="tt-strip"></div><div class="tt-list"></div><div class="tt-bar"><i></i><i></i><i></i><i></i></div>';
     b.appendChild(tt);
     b.insertAdjacentHTML("beforeend",'<span class="tg-badge">当前</span><span class="tg-name">'+esc(t.name)+'</span><span class="tg-meta">'+esc(t.category+" · "+t.desc)+'</span>');
@@ -1148,10 +1186,10 @@ function drawRoute(){
     }
   }
   /* 起终点标记 */
-  const mk=(p,txt)=>{
-    L.marker([p.lat,p.lng],{icon:L.divIcon({className:"mk-se",html:'<div class="mkb-se">'+txt+"</div>",iconSize:[36,36],iconAnchor:[18,18]}),interactive:false,keyboard:false}).addTo(seLayer);
+  const mk=(p,txt,kind)=>{
+    L.marker([p.lat,p.lng],{icon:L.divIcon({className:"mk-se",html:'<div class="mkb-se '+kind+'">'+txt+"</div>",iconSize:[36,36],iconAnchor:[18,18]}),interactive:false,keyboard:false}).addTo(seLayer);
   };
-  mk(pts[0],"起");mk(pts[pts.length-1],"终");
+  mk(pts[0],"起","is-start");mk(pts[pts.length-1],"终","is-end");
   updateRecHud();
 }
 function pushRoutePoint(lat,lng,t){
@@ -1481,7 +1519,7 @@ async function renderMapImage(th){
   g.fillStyle="rgba(255,255,255,.72)";g.fillRect(W-tw-16,H-26,tw+16,26);
   g.fillStyle="#333";g.textBaseline="middle";g.fillText(credit,W-tw-8,H-13);
   const marks=[],mark=(p,cls,txt)=>{const q=P(p);marks.push({x:q[0]/W*100,y:q[1]/H*100,cls,txt});};
-  if(state.route.length>=2){mark(state.route[0],"mkb-se","起");mark(state.route[state.route.length-1],"mkb-se","终");}
+  if(state.route.length>=2){mark(state.route[0],"mkb-se is-start","起");mark(state.route[state.route.length-1],"mkb-se is-end","终");}
   sortedPins().forEach((p,i)=>mark(p,"mkb-pin",String(i+1)));
   return {src:cv.toDataURL("image/png"),marks};   // 瓦片跨域被拒时这里会抛错，由调用方兜底
 }

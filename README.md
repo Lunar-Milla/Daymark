@@ -33,7 +33,7 @@
 | 星期日杂志海报 | `magazine` | 设计 | masthead / dock / sheet / – / strip | 刊头式斜体大标题、编辑式地点目录、导出为杂志封面（满版地图 + 期号 + 双栏目录） |
 | 新中式水墨 | `ink` | 东方 | tag / dock / sheet / – / strip | 竖排题签“日迹”、朱印按钮、手卷式地点目录（竖排、由右向左）、飞白墨线 |
 | 插画趣味风 | `playful` | 趣味 | float / bubbles / dialog / – / – | 悬浮圆角顶栏、漂浮圆钮、彩色贴纸、胶带卡片 |
-| 极简主义 | `minimal` | 设计 | bar / dock / sheet / – / – | 大留白与细线（待升级） |
+| 极简主义 | `minimal` | 设计 | bar / text / sheet / – / – | 高留白、纯文字工具栏、下划线输入框；地图标记简化为编号小点、空心起点环与实心终点 |
 
 后续计划新增岛屿手账、旷野探索、冒险图鉴、星糖日记、像素闯关、猎人档案、幻想旅程、怪盗拼贴等方向，进度见 [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md)。这些方向借鉴游戏作品的气质，但界面、图形和文案都是原创的。
 
@@ -125,14 +125,14 @@ node qa-shots.mjs --themes ink,playful --scenes full,export --viewports phone,la
    | 维度 | 可选值 |
    | --- | --- |
    | `topbar` | `bar` 整条 · `float` 悬浮卡片 · `split` 标题 / 日期 / 按钮分格 · `masthead` 刊头（大标题独占一行）· `tag` 竖排题签（悬浮在地图左上角） |
-   | `toolbar` | `dock` 底部整条 · `pill` 悬浮胶囊 · `blocks` 硬边方块 · `bubbles` 独立漂浮圆钮 |
+   | `toolbar` | `dock` 底部整条 · `pill` 悬浮胶囊 · `blocks` 硬边方块 · `bubbles` 独立漂浮圆钮 · `text` 纯文字按钮 |
    | `modal` | `sheet` 底部弹出 · `dialog` 居中卡片（宽屏一律居中） |
    | `status` | `none` · `strip` 顶栏下常驻里程 / 用时 / 地点数 |
    | `list` | `none` · `strip` 地图下方的地点目录，点条目定位到该地点 |
 
    如果现有变体都不合适，就在 CSS「布局变体」区块和 `LAYOUTS` 里新增一个，这样后续主题也能复用。
 
-3. **写专属样式**：配置表达不了的细节（齿孔、贴纸、编号等），写在 CSS「主题区块」里，用 `body[data-theme="你的id"]` 开头；导出卡片样式写成 `.card-xxx` 规则。
+3. **写专属样式**：配置表达不了的细节（齿孔、贴纸、编号等），写在 CSS「主题区块」里，用 `body[data-theme="你的id"]` 开头；导出卡片样式写成 `.card-xxx` 规则。起点 / 终点标记分别带 `.is-start` / `.is-end`，导出卡片里地点编号 `.ec-no` 默认隐藏，可按需显示。
 
 4. **验收**：运行 `node tools/qa-shots.mjs --themes 你的id`，逐项检查页面布局、路线与标记、所有弹窗、记录状态和导出 PNG，并确认主题检查没有 error。
 
