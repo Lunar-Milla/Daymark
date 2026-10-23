@@ -25,15 +25,15 @@
 
 ## 主题
 
-| 主题 | id | 分类 | 顶栏 / 工具栏 / 弹窗 / 状态条 | 特点 |
+| 主题 | id | 分类 | 顶栏 / 工具栏 / 弹窗 / 状态条 / 目录 | 特点 |
 | --- | --- | --- | --- | --- |
-| 奶油胶片 | `cream` | 复古 | bar / pill / sheet / – | 胶片齿孔边、拍立得相纸叠层、导出地图带胶片框与片边字 |
-| 黑金轻奢 | `blackgold` | 夜间 | bar / dock / sheet / strip | 夜间仪表盘：紧凑顶栏、常驻状态条、金色细线分区、导出带角标框 |
-| 瑞士粗野主义 | `brutalist` | 设计 | split / blocks / dialog / – | 分格顶栏、01–04 编号方块按钮、12 栏网格、大号红色编号列表 |
-| 星期日杂志海报 | `magazine` | 设计 | bar / dock / sheet / – | 衬线大标题与编辑式排版（待升级） |
-| 新中式水墨 | `ink` | 东方 | bar / dock / sheet / – | 竖排日期、印章、飞白墨线（待升级） |
-| 插画趣味风 | `playful` | 趣味 | float / bubbles / dialog / – | 悬浮圆角顶栏、漂浮圆钮、彩色贴纸、胶带卡片 |
-| 极简主义 | `minimal` | 设计 | bar / dock / sheet / – | 大留白与细线（待升级） |
+| 奶油胶片 | `cream` | 复古 | bar / pill / sheet / – / – | 胶片齿孔边、拍立得相纸叠层、导出地图带胶片框与片边字 |
+| 黑金轻奢 | `blackgold` | 夜间 | bar / dock / sheet / strip / – | 夜间仪表盘：紧凑顶栏、常驻状态条、金色细线分区、导出带角标框 |
+| 瑞士粗野主义 | `brutalist` | 设计 | split / blocks / dialog / – / – | 分格顶栏、01–04 编号方块按钮、12 栏网格、大号红色编号列表 |
+| 星期日杂志海报 | `magazine` | 设计 | masthead / dock / sheet / – / strip | 刊头式斜体大标题、编辑式地点目录、导出为杂志封面（满版地图 + 期号 + 双栏目录） |
+| 新中式水墨 | `ink` | 东方 | tag / dock / sheet / – / strip | 竖排题签“日迹”、朱印按钮、手卷式地点目录（竖排、由右向左）、飞白墨线 |
+| 插画趣味风 | `playful` | 趣味 | float / bubbles / dialog / – / – | 悬浮圆角顶栏、漂浮圆钮、彩色贴纸、胶带卡片 |
+| 极简主义 | `minimal` | 设计 | bar / dock / sheet / – / – | 大留白与细线（待升级） |
 
 后续计划新增岛屿手账、旷野探索、冒险图鉴、星糖日记、像素闯关、猎人档案、幻想旅程、怪盗拼贴等方向，进度见 [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md)。这些方向借鉴游戏作品的气质，但界面、图形和文案都是原创的。
 
@@ -75,7 +75,7 @@ index.html?qa=<场景>&theme=<主题id>
 | `clear` / `gallery` | 打开清空确认 / 主题画廊 |
 | `export` / `exportroute` | 打开导出预览（地图模式 / 纯路线模式） |
 
-还可以加 `topbar=` `toolbar=` `modal=` `status=` 强制套用某种布局变体来预览，加 `nobadge` 隐藏左下角的验收角标。验收模式会自动检查所有主题的配置（字段、布局取值、文字与背景对比度）和旧存档兼容性，结果显示在角标上，并输出到控制台（`window.__daymarkQA`）。
+还可以加 `topbar=` `toolbar=` `modal=` `status=` `list=` 强制套用某种布局变体来预览，加 `nobadge` 隐藏左下角的验收角标。验收模式会自动检查所有主题的配置（字段、布局取值、文字与背景对比度）和旧存档兼容性，结果显示在角标上，并输出到控制台（`window.__daymarkQA`）。
 
 ### 批量截图
 
@@ -102,7 +102,7 @@ node qa-shots.mjs --themes ink,playful --scenes full,export --viewports phone,la
     palette:{bg:"#F7F1E3",fg:"#2F3B34",muted:"#6F7A70",accent:"#2E8B7A",panel:"#FFFDF6",line:"rgba(47,59,52,.14)"},
     typography:{display:'"Fraunces","Noto Serif SC",serif',body:'"Noto Sans SC",system-ui,sans-serif'},
     shape:{radius:"18px",control:"14px"},
-    layout:{topbar:"float",toolbar:"pill",modal:"dialog",status:"none"},
+    layout:{topbar:"float",toolbar:"pill",modal:"dialog",status:"none",list:"none"},
     map:{tileOpacity:.3,tileFilter:"sepia(.2) saturate(.8)",
       route:{color:"#2E8B7A",casing:"#FFFFFF",weight:7,casingW:14},
       marker:{pin:{bg:"#FFFDF6",fg:"#2E8B7A",border:"2px solid #2E8B7A"},se:{bg:"#2E8B7A",fg:"#FFFFFF"}}},
@@ -117,17 +117,18 @@ node qa-shots.mjs --themes ink,playful --scenes full,export --viewports phone,la
    | `shape` | 面板圆角、按钮圆角、胶囊圆角、顶栏下边线 |
    | `layout` | 选用哪种布局变体（见下表） |
    | `map` | 瓦片透明度与滤镜、路线样式（含 `ink` 水墨笔触）、起终点与地点标记的尺寸 / 颜色 / 形状 |
-   | `card` | 导出卡片的 CSS 类、头部样式（`rule` / `block` / `ink`）、装饰语、胶带 / 颗粒 / 底部横幅 / 地图片边字 |
+   | `card` | 导出卡片的 CSS 类、头部样式（`rule` / `block` / `ink` / `cover`）、装饰语、胶带 / 颗粒 / 底部横幅 / 地图片边字、竖排文字（`vertical`） |
    | `motion` | 动画时长与缓动 |
 
 2. **选布局**：优先组合已有变体，新主题之间的差异应主要来自排布，而不只是换颜色。
 
    | 维度 | 可选值 |
    | --- | --- |
-   | `topbar` | `bar` 整条 · `float` 悬浮卡片 · `split` 标题 / 日期 / 按钮分格 |
+   | `topbar` | `bar` 整条 · `float` 悬浮卡片 · `split` 标题 / 日期 / 按钮分格 · `masthead` 刊头（大标题独占一行）· `tag` 竖排题签（悬浮在地图左上角） |
    | `toolbar` | `dock` 底部整条 · `pill` 悬浮胶囊 · `blocks` 硬边方块 · `bubbles` 独立漂浮圆钮 |
    | `modal` | `sheet` 底部弹出 · `dialog` 居中卡片（宽屏一律居中） |
    | `status` | `none` · `strip` 顶栏下常驻里程 / 用时 / 地点数 |
+   | `list` | `none` · `strip` 地图下方的地点目录，点条目定位到该地点 |
 
    如果现有变体都不合适，就在 CSS「布局变体」区块和 `LAYOUTS` 里新增一个，这样后续主题也能复用。
 
@@ -139,6 +140,7 @@ node qa-shots.mjs --themes ink,playful --scenes full,export --viewports phone,la
 
 - **主题 id 发布后不要改**：用户存档里保存的是 id。确实要改名时，在 `THEME_ALIASES` 里登记 `旧id → 新id`。
 - **导出卡片里别用 `box-shadow` 做圆角卡片的阴影**：html2canvas 会把它画成灰色实块，用浅色边框代替。
+- **导出卡片里有竖排文字时设 `card.vertical:true`**：html2canvas 不会把横排标点转成竖排字形，开启后会自动换成竖排标点。数字时间等短串建议用 `writing-mode:horizontal-tb` 单独横排。
 - 导出地图的尺寸取自卡片 `.ec-map-in` 内层，主题可以随意给 `.ec-map` 加边框、内边距做外框，不影响标记对位。
 
 ## 第三方组件与许可

@@ -64,6 +64,16 @@ button{font-family:inherit;border:none;background:none;color:inherit;cursor:poin
 #statusStrip[data-rec="on"] .ss-state i{background:#E5484D;opacity:1;animation:blink 1.2s infinite}
 #statusStrip[data-rec="paused"] .ss-state i{background:#E5A800;opacity:1}
 #statusStrip em{font-style:normal;letter-spacing:.08em}
+/* ============ 地点目录（layout.list="strip"，配合 dock / blocks 工具栏使用） ============ */
+#pinList{display:none;overflow-x:auto;z-index:1150;position:relative;scrollbar-width:none;
+  background:var(--topbar);color:var(--on-topbar);border-top:1px solid var(--line)}
+#pinList::-webkit-scrollbar{display:none}
+[data-list="strip"] #pinList.has-pins{display:flex}
+.pl-item{flex:0 0 auto;display:flex;align-items:baseline;gap:6px;max-width:190px;padding:8px 14px;text-align:left;font-size:12px}
+.pl-item+.pl-item{border-left:1px solid var(--line)}
+.pl-no{font-family:var(--font-n);font-size:16px;color:var(--accent)}
+.pl-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-time{font-size:10px;opacity:.6}
 /* ============ 主题画廊 ============ */
 #themeGallery{
   display:none;position:absolute;left:0;right:0;top:var(--gallery-top);z-index:1250;
@@ -71,7 +81,9 @@ button{font-family:inherit;border:none;background:none;color:inherit;cursor:poin
   box-shadow:0 12px 30px rgba(0,0,0,.14);padding:10px 0 12px;
 }
 #themeGallery.open{display:block}
-.tg-cats{display:flex;gap:6px;overflow-x:auto;padding:0 14px 8px;scrollbar-width:none}
+.tg-head{display:flex;align-items:flex-start;gap:6px;padding-right:14px}
+.tg-cats{flex:1;min-width:0;display:flex;gap:6px;overflow-x:auto;padding:0 0 8px 14px;scrollbar-width:none}
+.tg-close{flex:0 0 auto;font-size:12px;font-weight:700;padding:5px 12px;border-radius:var(--pill);background:var(--accent);color:var(--on-accent)}
 .tg-cats::-webkit-scrollbar{display:none}
 .tg-cat{font-size:12px;padding:5px 12px;border-radius:var(--pill);white-space:nowrap;
   border:1px solid color-mix(in srgb,var(--on-topbar) 28%,transparent)}
@@ -111,6 +123,12 @@ button{font-family:inherit;border:none;background:none;color:inherit;cursor:poin
 .tt[data-toolbar="bubbles"] .tt-bar{background:none;border:none;justify-content:center;gap:5px;bottom:5px}
 .tt[data-toolbar="bubbles"] .tt-bar i{width:13px;height:13px;border-radius:50%;background:var(--panel);opacity:1;box-shadow:0 1px 3px rgba(0,0,0,.25)}
 .tt[data-toolbar="bubbles"] .tt-bar i:first-child{width:16px;height:16px;background:var(--accent)}
+.tt-list{display:none;position:absolute;left:0;right:0;bottom:18px;height:9px;z-index:1;background:var(--topbar);border-top:1px solid var(--line);
+  background-image:repeating-linear-gradient(90deg,var(--accent) 0 3px,transparent 3px 6px,var(--fg) 6px 20px,transparent 20px 30px);background-size:100% 2px;background-position:center;background-repeat:no-repeat}
+.tt[data-list="strip"] .tt-list{display:block}
+.tt[data-topbar="masthead"] .tt-top{height:26px;font-size:15px;line-height:22px;font-style:italic;border-bottom:3px double var(--on-topbar)}
+.tt[data-topbar="tag"] .tt-top{left:6px;top:6px;right:auto;width:16px;height:52px;padding:4px 0;writing-mode:vertical-rl;line-height:14px;font-size:8px;
+  border:1px solid var(--line);border-radius:2px;text-align:center}
 .tt[data-topbar="float"] .tt-top{left:5px;right:5px;top:5px;border:1px solid var(--line);border-radius:min(var(--radius),6px)}
 .tt[data-toolbar="pill"] .tt-bar{left:12px;right:12px;bottom:5px;border:1px solid var(--line);border-radius:var(--pill)}
 .tt[data-toolbar="blocks"] .tt-bar{justify-content:space-evenly}
@@ -208,7 +226,24 @@ body.capturing .leaflet-control-container{display:none}
  * toolbar: dock（底部整条） | pill（悬浮胶囊） | blocks（硬边方块） | bubbles（独立漂浮圆钮，记录键放大）
  * modal:   sheet（底部弹出） | dialog（居中卡片）
  * status:  none | strip（顶栏下常驻里程/用时/地点数）
+ * topbar 另有 masthead（刊头：大标题独占一行，日期与按钮在细线下）| tag（竖排题签，悬浮在地图左上角）
+ * list:    none | strip（地图下方的地点目录）
  */
+[data-topbar="masthead"] #topbar{display:grid;grid-template-columns:1fr auto;grid-template-areas:"title title" "date toggle";row-gap:6px;padding-bottom:8px}
+[data-topbar="masthead"] #brand{display:contents}
+[data-topbar="masthead"] #brandTitle{grid-area:title;font-size:40px;line-height:1;padding-bottom:6px;border-bottom:var(--mast-rule,1px solid currentColor)}
+[data-topbar="masthead"] #brandDate{grid-area:date;align-self:center;margin:0}
+[data-topbar="masthead"] #themeToggle{grid-area:toggle;padding:4px 0;border:none;border-radius:0;background:none;color:inherit;font-size:12px;
+  text-decoration:underline;text-underline-offset:4px}
+[data-topbar="masthead"] .tg-emoji{display:none}
+[data-topbar="tag"] #topbar{position:absolute;left:12px;top:calc(12px + env(safe-area-inset-top));flex-direction:column;align-items:center;gap:10px;
+  padding:14px 8px 10px;border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 4px 14px rgba(0,0,0,.1)}
+[data-topbar="tag"] #brand{writing-mode:vertical-rl}
+[data-topbar="tag"] #brandDate{margin:0 6px 0 0;text-orientation:upright;letter-spacing:.06em}
+[data-topbar="tag"] #themeToggle{writing-mode:vertical-rl;padding:8px 5px;border-radius:var(--radius-ctl)}
+[data-topbar="tag"] .tg-emoji{display:none}
+[data-topbar="tag"] #themeGallery{padding-top:calc(10px + env(safe-area-inset-top))}
+[data-topbar="tag"] .hud{left:calc(50% + 30px);max-width:calc(100% - 84px)}
 [data-toolbar="bubbles"] #toolbar{position:absolute;left:0;right:0;bottom:calc(14px + env(safe-area-inset-bottom));
   justify-content:center;align-items:center;gap:12px;padding:0 12px;background:transparent;border:none;pointer-events:none}
 [data-toolbar="bubbles"] .tool-btn{pointer-events:auto;flex:0 0 auto;width:62px;height:62px;padding:0;gap:2px;justify-content:center;
@@ -426,19 +461,67 @@ body[data-theme="brutalist"] .btn.danger{background:#E61919}
   font-size:34px;text-align:center;padding:26px;margin:36px 72px 0;letter-spacing:.04em}
 .card-t3 .ec-foot{background:#0A0A09;color:#F4F4F0;padding:22px 72px;margin-top:36px;font-size:22px;opacity:1}
 
-/* ---- 主题：星期日杂志 magazine ---- */
+/* ---- 主题：星期日杂志 magazine ----
+ * 刊头式顶栏（斜体大标题 + 细线下的日期与文字链接），编辑式地点目录，横排图标标签。导出为杂志封面。 */
+body[data-theme="magazine"]{--mast-rule:1px solid #1A1815}
+body[data-theme="magazine"] #brandTitle{font-style:italic;letter-spacing:-.02em}
+body[data-theme="magazine"] #brandTitle::after{content:"THE DAY ISSUE";margin-left:12px;vertical-align:10px;
+  font:600 9px/1 "Inter",sans-serif;font-style:normal;letter-spacing:.32em}
+body[data-theme="magazine"] #brandDate{opacity:.75;text-transform:uppercase;letter-spacing:.18em}
+body[data-theme="magazine"] #toolbar{border-top:2px solid #1A1815;padding-top:6px}
+body[data-theme="magazine"] .tool-btn{flex-direction:row;justify-content:center;gap:6px;padding:10px 2px;font-size:12px;letter-spacing:.06em}
+body[data-theme="magazine"] .tool-btn .ico svg{width:18px;height:18px}
+body[data-theme="magazine"] .tool-btn+.tool-btn{border-left:1px solid rgba(26,24,21,.2)}
+body[data-theme="magazine"] #pinList{border-top:1px solid #1A1815}
+body[data-theme="magazine"] .pl-no{font-style:italic;font-size:20px}
+body[data-theme="magazine"] .pl-name{font-family:"Playfair Display","Noto Serif SC",serif;font-size:13px;font-weight:700}
+body[data-theme="magazine"] .hud{border:1px solid #1A1815;box-shadow:none}
+body[data-theme="magazine"] .hud .hud-txt{font-size:15px;font-style:italic}
+body[data-theme="magazine"] .modal h3{font-style:italic;font-size:26px;padding-bottom:10px;border-bottom:2px solid #1A1815}
 .card-t4{--card-bg:#F3EEE2;--card-fg:#1A1815;font-family:"Inter","Noto Sans SC",system-ui,sans-serif}
-.card-t4 .ec-head{border-bottom:1px solid #1A1815}
-.card-t4 .ec-date{font-family:"Playfair Display","Noto Serif SC",Georgia,serif;font-size:88px;line-height:.95}
-.card-t4 .ec-deco{font-style:italic;font-family:"Playfair Display",Georgia,serif;letter-spacing:.04em}
-.card-t4 .ec-map{border-radius:0;border:1px solid #1A1815}
-.card-t4 .ec-stats{border-top:1px solid #1A1815;border-bottom:1px solid #1A1815}
-.card-t4 .ec-stat b{font-family:"Playfair Display","Noto Serif SC",serif}
-.card-t4 .ec-pin{border-top:1px solid #1A181555;padding-top:24px}
-.card-t4 .ec-pin img{border-radius:0}
-.card-t4 .ec-pin .t b{font-family:"Playfair Display","Noto Serif SC",serif;font-size:34px}
+.card-t4 .ec-head{padding:56px 72px 30px}
+.card-t4 .ec-mast{font-family:"Playfair Display",Georgia,serif;font-style:italic;font-weight:700;font-size:210px;line-height:.86;letter-spacing:-.035em;margin-left:-8px}
+.card-t4 .ec-issue{display:flex;align-items:baseline;justify-content:space-between;gap:24px;margin-top:24px;padding:14px 0;
+  border-top:4px solid #1A1815;border-bottom:1px solid #1A1815;font-size:22px;letter-spacing:.18em;text-transform:uppercase}
+.card-t4 .ec-issue .ec-date{font:600 24px/1.2 "Inter","Noto Sans SC",sans-serif;letter-spacing:.14em}
+.card-t4 .ec-issue .ec-deco{margin:0;font:italic 600 26px/1.2 "Playfair Display",Georgia,serif;letter-spacing:.02em;opacity:1;text-transform:none}
+.card-t4 .ec-issue-no{font-weight:600}
+.card-t4 .ec-map{margin:0;height:720px;border-radius:0;border-top:1px solid #1A1815;border-bottom:1px solid #1A1815}
+.card-t4 .ec-stats{margin:40px 72px 0;border-top:1px solid #1A1815;border-bottom:1px solid #1A1815}
+.card-t4 .ec-stat b{font-family:"Playfair Display","Noto Serif SC",serif;font-style:italic;font-size:60px}
+.card-t4 .ec-pins{display:grid;grid-template-columns:1fr 1fr;gap:40px 44px;margin-top:44px}
+.card-t4 .ec-pin{display:grid;grid-template-columns:auto 1fr;gap:16px 18px;align-items:baseline;margin:0;padding-top:18px;border-top:2px solid #1A1815}
+.card-t4 .ec-pin img{grid-row:1;grid-column:1 / -1;width:100%;height:300px;border-radius:0}
+.card-t4 .ec-no{display:block;grid-row:2;grid-column:1;font:italic 700 60px/.9 "Playfair Display",Georgia,serif;color:#B85A3A}
+.card-t4 .ec-pin .t{grid-row:2;grid-column:2}
+.card-t4 .ec-idx{display:none}
+.card-t4 .ec-pin .t b{font-family:"Playfair Display","Noto Serif SC",serif;font-size:32px;line-height:1.2}
+.card-t4 .ec-pin .t p{font-size:23px;line-height:1.6}
 
-/* ---- 主题：新中式水墨 ink ---- */
+/* ---- 主题：新中式水墨 ink ----
+ * 竖排题签悬于地图左上，朱印式按钮；地点目录做成手卷：竖排、由右向左、两端卷轴。导出地点同样按手卷排列。 */
+body[data-theme="ink"] #topbar{background:#FBF8EF}
+body[data-theme="ink"] #brandTitle{font-size:0;letter-spacing:0}
+body[data-theme="ink"] #brandTitle::before{content:"日迹";font:900 24px/1.2 "Noto Serif SC",serif;letter-spacing:.3em}
+body[data-theme="ink"] #brandDate{font-family:"Noto Serif SC",serif;font-size:11px;opacity:.7}
+body[data-theme="ink"] #themeToggle{background:#B03A2E;color:#F5F1E8;border:none;font-weight:900;letter-spacing:.2em}
+body[data-theme="ink"] .tool-btn{letter-spacing:.1em}
+body[data-theme="ink"] .tool-btn .ico{padding:5px;border:1.5px solid #B03A2E;border-radius:5px;color:#B03A2E;transform:rotate(-3deg)}
+body[data-theme="ink"] .tool-btn:nth-child(even) .ico{transform:rotate(2deg)}
+body[data-theme="ink"] .tool-btn .ico svg{width:20px;height:20px}
+body[data-theme="ink"] .tool-btn.active{background:none;color:#B03A2E}
+body[data-theme="ink"] .tool-btn.active .ico{background:#B03A2E;color:#F5F1E8}
+body[data-theme="ink"] #pinList{flex-direction:row-reverse;background:#EFE6D3;color:#2B2B28;border-top:none;
+  border-left:10px solid #5B4636;border-right:10px solid #5B4636;box-shadow:inset 0 3px 6px rgba(0,0,0,.08)}
+body[data-theme="ink"] .pl-item{writing-mode:vertical-rl;max-width:none;max-height:112px;padding:10px 8px;gap:4px;
+  font-family:"Noto Serif SC",serif;font-size:13px;letter-spacing:.12em}
+body[data-theme="ink"] .pl-item+.pl-item{border-left:none;border-right:1px solid rgba(43,43,40,.18)}
+body[data-theme="ink"] .pl-no{text-combine-upright:all;font-family:"Noto Serif SC",serif;font-size:13px;font-weight:900;
+  padding:2px 0;background:#B03A2E;color:#F5F1E8;border-radius:3px}
+body[data-theme="ink"] .pl-time{display:none}
+body[data-theme="ink"] .hud{border:1px solid #2B2B28;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+body[data-theme="ink"] .modal h3::before{content:"记";display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;
+  margin-right:10px;vertical-align:2px;font-size:15px;background:#B03A2E;color:#F5F1E8;border-radius:4px}
 .card-t5{--card-bg:#F5F1E8;--card-fg:#2B2B28;font-family:"Noto Serif SC",serif}
 .card-t5 .ec-head{display:flex;justify-content:flex-start;gap:44px;align-items:stretch}
 .card-t5 .ec-inkart{flex:1;min-width:0;border-left:1px solid rgba(43,43,40,.22)}
@@ -451,7 +534,17 @@ body[data-theme="brutalist"] .btn.danger{background:#E61919}
 .card-t5 .ec-map{border-radius:0;opacity:.96}
 .card-t5 .ec-stats{border:none;border-top:1px solid #2B2B2844;border-bottom:1px solid #2B2B2844}
 .card-t5 .ec-stat b{font-family:"Noto Serif SC",serif;font-weight:900}
-.card-t5 .ec-pin img{border-radius:0;border:1px solid #2B2B2833}
+.card-t5 .ec-pins{display:flex;flex-direction:row-reverse;flex-wrap:wrap;margin:40px 72px 0;padding:30px 6px;
+  background:#EFE6D3;border-left:18px solid #5B4636;border-right:18px solid #5B4636;border-radius:6px}
+.card-t5 .ec-pin{flex-direction:column;align-items:center;gap:18px;margin:0 0 20px;padding:0 22px;border-right:1px solid rgba(43,43,40,.18)}
+.card-t5 .ec-pin:first-child{border-right:none}
+.card-t5 .ec-no{display:block;padding:6px 10px;background:#B03A2E;color:#F5F1E8;font-size:24px;font-weight:900;border-radius:6px}
+.card-t5 .ec-idx{display:none}
+.card-t5 .ec-pin img{width:150px;height:150px;border-radius:0;border:1px solid #2B2B2833}
+.card-t5 .ec-pin .t{flex:none;writing-mode:vertical-rl;height:430px}
+.card-t5 .ec-pin .t b{font-size:32px;letter-spacing:.12em;margin:0 0 0 12px}
+.card-t5 .ec-pin .t p{font-size:24px;line-height:1.7;letter-spacing:.06em}
+.card-t5 .ec-pin .t small{writing-mode:horizontal-tb;display:block;font-size:20px;margin-right:12px;white-space:nowrap}
 .card-t5 .ec-foot{letter-spacing:.5em}
 
 /* ---- 主题：插画趣味风 playful ----
@@ -553,7 +646,10 @@ body[data-theme="playful"] #pinImgPreview{border-radius:20px;border:6px solid #f
     <span><b id="ssPins">0</b><small>SPOTS</small></span>
   </div>
   <section id="themeGallery" aria-label="主题画廊">
-    <div class="tg-cats" id="tgCats" role="group" aria-label="主题分类"></div>
+    <div class="tg-head">
+      <div class="tg-cats" id="tgCats" role="group" aria-label="主题分类"></div>
+      <button class="tg-close" id="tgClose">完成</button>
+    </div>
     <div class="tg-list" id="tgList"></div>
     <div class="tg-actions" id="tgActions" aria-live="polite">
       <span id="tgTip"></span>
@@ -572,6 +668,7 @@ body[data-theme="playful"] #pinImgPreview{border-radius:20px;border:6px solid #f
       <button id="btnCancelPin" class="ghost">取消</button>
     </div>
   </div>
+  <div id="pinList" aria-label="地点目录"></div>
   <nav id="toolbar" aria-label="主要操作">
     <button class="tool-btn" id="btnRecord" aria-pressed="false"><span class="ico" id="recIco" aria-hidden="true"></span><span id="recLbl">开始记录</span></button>
     <button class="tool-btn" id="btnPin" aria-pressed="false"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.6-7-11a7 7 0 1 1 14 0c0 5.4-7 11-7 11z"/><circle cx="12" cy="10" r="2.6"/></svg></span><span>地点</span></button>
@@ -683,7 +780,7 @@ const QA=(()=>{
   const q=new URLSearchParams(location.search),scene=q.get("qa");
   if(!scene)return null;
   const layout={};
-  ["topbar","toolbar","modal","status"].forEach(k=>{if(q.get(k))layout[k]=q.get(k);});
+  ["topbar","toolbar","modal","status","list"].forEach(k=>{if(q.get(k))layout[k]=q.get(k);});
   return {scene,theme:q.get("theme"),layout,badge:!q.has("nobadge")};
 })();
 /* ================= 本地存储 ================= */
@@ -739,7 +836,7 @@ const photoStore={
  * 主题 id 会写进用户存储，发布后不要改名；确需改名时在 THEME_ALIASES 里登记旧 id。
  */
 const OSM_TILE="https://tile.openstreetmap.org/{z}/{x}/{y}.png";
-const LAYOUTS={topbar:["bar","float","split"],toolbar:["dock","pill","blocks","bubbles"],modal:["sheet","dialog"],status:["none","strip"]};
+const LAYOUTS={topbar:["bar","float","split","masthead","tag"],toolbar:["dock","pill","blocks","bubbles"],modal:["sheet","dialog"],status:["none","strip"],list:["none","strip"]};
 const THEME_ALIASES={};
 const THEME_DEFAULTS={
   name:"",category:"其他",desc:"",
@@ -748,13 +845,13 @@ const THEME_DEFAULTS={
   typography:{display:'"Fraunces","Noto Serif SC",Georgia,serif',body:'"Noto Serif SC","Noto Sans SC",system-ui,sans-serif',
     num:'"Courier Prime",ui-monospace,SFMono-Regular,Menlo,monospace',titleSpacing:".02em"},
   shape:{radius:"14px",control:"12px",pill:"999px",topbarBorder:"1px solid var(--line)"},
-  layout:{topbar:"bar",toolbar:"dock",modal:"sheet",status:"none"},
+  layout:{topbar:"bar",toolbar:"dock",modal:"sheet",status:"none",list:"none"},
   map:{tile:OSM_TILE,bg:"#e8e4da",tileOpacity:.3,tileFilter:"none",
     route:{color:"#7E9BB3",casing:"#FFFFFF",weight:7,casingW:14,innerDash:false,ink:false},
     marker:{font:null,
       pin:{size:"34px",fontSize:"15px",weight:"800",radius:"50%",bg:"#FFFFFF",fg:"#333333",border:"2px solid #333333",shadow:"none"},
       se:{size:"36px",fontSize:"16px",weight:"800",radius:"50%",bg:"#333333",fg:"#FFFFFF",border:"none",shadow:"none"}}},
-  card:{cls:"card-t1",head:"rule",deco:"good day",tape:false,grain:false,cta:"",mapLabel:""},
+  card:{cls:"card-t1",head:"rule",deco:"good day",tape:false,grain:false,cta:"",mapLabel:"",vertical:false},
   motion:{dur:".25s",ease:"ease"}
 };
 function defineTheme(t){
@@ -794,26 +891,28 @@ const THEMES=[
       pin:{radius:"0",bg:"#E61919",fg:"#FFFFFF",border:"3px solid #0A0A09"},
       se:{radius:"0",bg:"#0A0A09",fg:"#FFFFFF",border:"3px solid #E61919"}}},
   card:{cls:"card-t3",head:"block",deco:"good day // trip",cta:"TODAY&rsquo;S TRIP →"},motion:{dur:".12s",ease:"linear"}},
- {id:"magazine",name:"星期日杂志海报",category:"设计",desc:"衬线标题与编辑排版",
+ {id:"magazine",name:"星期日杂志海报",category:"设计",desc:"刊头大标题与编辑式目录",
   palette:{bg:"#F3EEE2",fg:"#1A1815",muted:"#6E6757",accent:"#B85A3A",panel:"#FBF8EF",line:"rgba(26,24,21,.2)",icon:"#B85A3A"},
   typography:{display:'"Playfair Display","Noto Serif SC",Georgia,serif',body:'"Inter","Noto Sans SC",system-ui,sans-serif',num:'"Playfair Display",Georgia,serif'},
-  shape:{topbarBorder:"2px solid #1A1815"},
+  shape:{radius:"2px",control:"0px",pill:"0px",topbarBorder:"2px solid #1A1815"},
+  layout:{topbar:"masthead",list:"strip"},
   map:{tileOpacity:.3,tileFilter:"sepia(.5) saturate(.6) brightness(1.14)",
     route:{color:"#B85A3A",casing:"#FFFFFF",weight:7,casingW:14},
     marker:{font:'"Playfair Display","Noto Serif SC",serif',
       pin:{bg:"#F3EEE2",fg:"#1A1815",border:"1.5px solid #1A1815"},
       se:{bg:"#B85A3A",fg:"#FFFFFF",border:"2px solid #1A1815"}}},
-  card:{cls:"card-t4"}},
- {id:"ink",name:"新中式水墨",category:"东方",desc:"宣纸、墨线与朱印",
+  card:{cls:"card-t4",head:"cover",deco:"the good day issue"}},
+ {id:"ink",name:"新中式水墨",category:"东方",desc:"竖排题签、朱印与卷轴",
   palette:{bg:"#F5F1E8",fg:"#2B2B28",muted:"#8A8578",accent:"#B03A2E",panel:"#FBF8EF",line:"rgba(43,43,40,.18)"},
   typography:{display:'"Noto Serif SC",serif',body:'"Noto Serif SC","Noto Sans SC",serif',num:'"Cormorant Garamond",serif',titleSpacing:".35em"},
-  shape:{topbarBorder:"1px solid rgba(43,43,40,.4)"},
+  shape:{radius:"6px",control:"6px",pill:"6px",topbarBorder:"1px solid rgba(43,43,40,.4)"},
+  layout:{topbar:"tag",list:"strip"},
   map:{tileOpacity:.28,tileFilter:"grayscale(1) sepia(.3) brightness(1.18)",
     route:{ink:true},
     marker:{font:'"Noto Serif SC",serif',
       pin:{radius:"5px",bg:"#F5F1E8",fg:"#B03A2E",border:"2px solid #2B2B28"},
       se:{radius:"4px",bg:"#B03A2E",fg:"#F5F1E8",shadow:"0 2px 8px rgba(0,0,0,.3)"}}},
-  card:{cls:"card-t5",head:"ink"},motion:{dur:".4s"}},
+  card:{cls:"card-t5",head:"ink",vertical:true},motion:{dur:".4s"}},
  {id:"playful",name:"插画趣味风",category:"趣味",desc:"彩色贴纸与漂浮按钮",
   palette:{bg:"#FEF6EE",fg:"#264653",muted:"#6E8892",accent:"#EF476F",panel:"#FFFFFF",line:"rgba(38,70,83,.14)"},
   typography:{display:'"Poppins","ZCOOL KuaiLe","Noto Sans SC",sans-serif',body:'"Noto Sans SC",system-ui,sans-serif',num:'"Poppins",ui-monospace,monospace'},
@@ -937,7 +1036,7 @@ function applyTheme(id,redraw=true){
   const th=themeById(id);
   state.theme=th.id;
   const b=document.body,lay=Object.assign({},th.layout,QA?QA.layout:{});
-  b.dataset.theme=th.id;b.dataset.topbar=lay.topbar;b.dataset.toolbar=lay.toolbar;b.dataset.modal=lay.modal;b.dataset.status=lay.status;
+  b.dataset.theme=th.id;b.dataset.topbar=lay.topbar;b.dataset.toolbar=lay.toolbar;b.dataset.modal=lay.modal;b.dataset.status=lay.status;b.dataset.list=lay.list;
   setVars(document.documentElement,themeVars(th));
   const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=th.palette.topbar;
   setTiles(th);
@@ -951,7 +1050,7 @@ function applyTheme(id,redraw=true){
 function syncInsets(){
   const app=$("app"),tb=$("topbar"),bar=$("toolbar"),d=document.body.dataset,r=document.documentElement.style;
   const tbBottom=tb.offsetTop+tb.offsetHeight,barH=app.clientHeight-bar.offsetTop;
-  r.setProperty("--gallery-top",tbBottom+(d.topbar==="float"?6:0)+"px");
+  r.setProperty("--gallery-top",d.topbar==="tag"?"0px":tbBottom+(d.topbar==="float"?6:0)+"px");   // 竖排题签不占整行，画廊从顶部展开
   r.setProperty("--overlay-top",d.topbar==="float"?tbBottom+"px":"0px");
   r.setProperty("--overlay-bottom",d.toolbar==="pill"||d.toolbar==="bubbles"?barH+"px":"0px");
   r.setProperty("--chrome-bottom",barH+"px");
@@ -988,13 +1087,13 @@ function buildGallery(){
     b.className="tg-card";b.dataset.id=t.id;b.dataset.cat=t.category;
     b.setAttribute("aria-label",t.name+"（"+t.category+"）");
     const tt=document.createElement("div");
-    tt.className="tt";tt.dataset.topbar=t.layout.topbar;tt.dataset.toolbar=t.layout.toolbar;tt.dataset.status=t.layout.status;
+    tt.className="tt";tt.dataset.topbar=t.layout.topbar;tt.dataset.toolbar=t.layout.toolbar;tt.dataset.status=t.layout.status;tt.dataset.list=t.layout.list;
     setVars(tt,themeVars(t));
     tt.innerHTML=thumbRouteSVG(t)
       +'<span class="tt-mk" style="left:10px;top:92px"><div class="mkb-se">起</div></span>'
       +'<span class="tt-mk" style="left:56px;top:66px"><div class="mkb-pin">1</div></span>'
       +'<span class="tt-mk" style="left:94px;top:46px"><div class="mkb-se">终</div></span>'
-      +'<div class="tt-top">Daymark</div><div class="tt-strip"></div><div class="tt-bar"><i></i><i></i><i></i><i></i></div>';
+      +'<div class="tt-top">Daymark</div><div class="tt-strip"></div><div class="tt-list"></div><div class="tt-bar"><i></i><i></i><i></i><i></i></div>';
     b.appendChild(tt);
     b.insertAdjacentHTML("beforeend",'<span class="tg-badge">当前</span><span class="tg-name">'+esc(t.name)+'</span><span class="tg-meta">'+esc(t.category+" · "+t.desc)+'</span>');
     b.onclick=()=>{if(t.id!==state.theme){applyTheme(t.id);toast("已切换："+t.name);}};
@@ -1141,7 +1240,21 @@ setInterval(updateRecHud,1000);
 /* ================= Pin 地点 ================= */
 const pinMarkers={};
 const sortedPins=()=>state.pins.slice().sort((a,b)=>a.createdAt-b.createdAt);
+/* 地点目录（layout.list="strip" 的主题显示）：点条目定位到该地点 */
+function renderPinList(){
+  const box=$("pinList"),pins=sortedPins();
+  box.classList.toggle("has-pins",pins.length>0);
+  box.innerHTML="";
+  pins.forEach((p,i)=>{
+    const b=document.createElement("button");
+    b.className="pl-item";b.title="定位到 "+(p.name||"第"+(i+1)+"站");
+    b.innerHTML='<span class="pl-no">'+String(i+1).padStart(2,"0")+'</span><span class="pl-name">'+esc(p.name||"第"+(i+1)+"站")+'</span><span class="pl-time">'+pinTimeStr(p.createdAt)+'</span>';
+    b.onclick=()=>{if(map)map.setView([p.lat,p.lng],Math.max(map.getZoom(),15));};
+    box.appendChild(b);
+  });
+}
 function drawPins(){
+  renderPinList();
   if(typeof L==="undefined"||!pinLayer)return;
   pinLayer.clearLayers();
   Object.keys(pinMarkers).forEach(k=>delete pinMarkers[k]);
@@ -1416,13 +1529,19 @@ function buildRouteSVG(th){
   sortedPins().forEach((pn,i)=>{inner+=dot(pn,String(i+1),p.fg,p.bg,18,21);});
   return '<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">'+inner+'</svg>';
 }
+/* 竖排文字改用竖排标点：html2canvas 逐字绘制时不会把横排标点转成竖排字形 */
+const VERT_PUNCT={"，":"︐","、":"︑","。":"︒","：":"︓","；":"︔","！":"︕","？":"︖","（":"︵","）":"︶","「":"﹁","」":"﹂","“":"﹁","”":"﹂"};
+const vtext=s=>String(s||"").replace(/[，、。：；！？（）「」“”]/g,ch=>VERT_PUNCT[ch]);
 function cardHTML(d){
-  const th=d.th,c=th.card;
+  const th=d.th,c=th.card,tx=c.vertical?vtext:(s=>s);
   const date='<div class="ec-date" data-f="date" contenteditable="true">'+esc(d.dateStr)+'</div>';
   const deco='<div class="ec-deco" data-f="deco" contenteditable="true">'+esc(c.deco)+'</div>';
   let head="";
   if(c.head==="block"){
     head='<div class="ec-head">'+date+deco+'</div>';
+  }else if(c.head==="cover"){
+    const now=new Date(),issue=Math.floor((now-new Date(now.getFullYear(),0,0))/864e5);   // 一年中的第几天当期号
+    head='<div class="ec-head"><div class="ec-mast">Daymark</div><div class="ec-issue">'+date+'<span class="ec-issue-no">No. '+issue+'</span>'+deco+'</div></div>';
   }else if(c.head==="ink"){
     head='<div class="ec-head">'+date
       +'<div><div class="ec-title-h">Daymark</div>'+deco+'<div class="ec-seal">旅</div></div>'
@@ -1456,8 +1575,8 @@ function cardHTML(d){
     pinsHtml+='<div class="ec-pin'+(p._img?"":" no-img")+'">'+(c.tape?'<div class="ec-tape"></div>':"")
       +'<span class="ec-no">'+String(i+1).padStart(2,"0")+'</span>'
       +(p._img?'<img src="'+p._img+'" alt="打卡照片">':"")
-      +'<div class="t"><b><span class="ec-idx">'+(i+1)+'. </span>'+esc(p.name||"第"+(i+1)+"站")+'</b>'
-      +(p.text?'<p>'+esc(p.text)+'</p>':"")
+      +'<div class="t"><b><span class="ec-idx">'+(i+1)+'. </span>'+esc(tx(p.name||"第"+(i+1)+"站"))+'</b>'
+      +(p.text?'<p>'+esc(tx(p.text))+'</p>':"")
       +'<small>'+pinTimeStr(p.createdAt)+'</small></div></div>';
   });
   if(!d.pins.length)pinsHtml+='<div style="font-size:26px;opacity:.45">今天还没有 pin 地点，路过的地方值得被记住</div>';
@@ -1622,6 +1741,7 @@ function runThemeChecks(){
 /* ================= 事件绑定与初始化 ================= */
 function bindEvents(){
   $("themeToggle").onclick=()=>$("themeGallery").classList.contains("open")?closeGallery():openGallery();
+  $("tgClose").onclick=closeGallery;
   $("tgUndo").onclick=()=>{const o=gallery.origin;if(o){applyTheme(o);toast("已恢复："+themeById(o).name);}};
   $("btnRecord").onclick=()=>{state.recording?stopRecord():startRecord();};
   $("btnPause").onclick=()=>{state.paused?resumeRecord():pauseRecord();};
