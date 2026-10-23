@@ -11,7 +11,43 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Noto+Serif+SC:wght@300;600;900&family=Courier+Prime:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&family=Archivo+Black&family=Inter+Tight:wght@500;700&family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&family=Poppins:wght@700;800&family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script>
+/* 字体按主题加载：一次加载全部字体的 CSS 近 1MB 且阻塞首屏。
+ * 主题在 typography.fonts 里列出这里的键；applyTheme() 加载当前主题的字体，并把键写入 localStorage，
+ * 下次打开时这段脚本先行预取，减少字体闪烁。 */
+window.FONT_FAMILIES={
+  fraunces:"Fraunces:opsz,wght@9..144,600;9..144,700",
+  serifsc:"Noto+Serif+SC:wght@300;600;900",
+  sanssc:"Noto+Sans+SC:wght@400;500;700;900",
+  courier:"Courier+Prime:wght@400;700",
+  cormorant:"Cormorant+Garamond:wght@500;600;700",
+  archivo:"Archivo+Black",
+  intertight:"Inter+Tight:wght@500;700",
+  playfair:"Playfair+Display:ital,wght@0,600;0,700;1,600;1,700",
+  inter:"Inter:wght@400;500;600",
+  poppins:"Poppins:wght@700;800",
+  zcool:"ZCOOL+KuaiLe"
+};
+window.FONT_CJK={serifsc:1,sanssc:1,zcool:1};   // 体积大的中文字体，画廊缩略图不为它们预加载
+(function(){
+  var loaded={};
+  window.loadFonts=function(keys){
+    var todo=(keys||[]).filter(function(k){return FONT_FAMILIES[k]&&!loaded[k];});
+    var waits=(keys||[]).map(function(k){return loaded[k];}).filter(Boolean);
+    if(todo.length){
+      var p=new Promise(function(res){
+        var l=document.createElement("link");l.rel="stylesheet";
+        l.href="https://fonts.googleapis.com/css2?"+todo.map(function(k){return "family="+FONT_FAMILIES[k];}).join("&")+"&display=swap";
+        var t=setTimeout(res,6000);l.onload=l.onerror=function(){clearTimeout(t);res();};
+        document.head.appendChild(l);
+      });
+      todo.forEach(function(k){loaded[k]=p;});waits.push(p);
+    }
+    return Promise.all(waits);
+  };
+  try{var k=JSON.parse(localStorage.getItem("daymark_fonts")||"null");if(k&&!/[?&]qa=/.test(location.search))loadFonts(k);}catch(e){}
+})();
+</script>
 <style>
 /* ============ 基础 ============
  * 主题变量由 JS 从 THEMES 配置写入 :root（见 themeVars）。这里只是首屏默认值。
@@ -821,7 +857,7 @@ const QA=(()=>{
 })();
 /* ================= 本地存储 ================= */
 const LS_KEY="yiriji-state-v1";   // 保留旧键名，兼容已有用户数据
-const STATE_VERSION=2;
+const STATE_VERSION=3;   // v3：增加 rec（进行中的记录，刷新后恢复）
 const store={
   load(){try{const s=localStorage.getItem(LS_KEY);return s?JSON.parse(s):null;}catch(e){return null;}},
   save(s){if(QA)return;try{localStorage.setItem(LS_KEY,JSON.stringify(s));}catch(e){}}
@@ -879,7 +915,8 @@ const THEME_DEFAULTS={
   palette:{bg:"#FAF6EF",fg:"#3E3A32",muted:"#A39E93",accent:"#7E9BB3",onAccent:"#FFFFFF",
     topbar:null,onTopbar:null,panel:"#FFFFFF",line:"rgba(0,0,0,.08)",icon:"currentColor"},
   typography:{display:'"Fraunces","Noto Serif SC",Georgia,serif',body:'"Noto Serif SC","Noto Sans SC",system-ui,sans-serif',
-    num:'"Courier Prime",ui-monospace,SFMono-Regular,Menlo,monospace',titleSpacing:".02em"},
+    num:'"Courier Prime",ui-monospace,SFMono-Regular,Menlo,monospace',titleSpacing:".02em",
+    fonts:["fraunces","serifsc","courier"]},   // FONT_FAMILIES 的键：界面与导出卡片用到的字体都要列上
   shape:{radius:"14px",control:"12px",pill:"999px",topbarBorder:"1px solid var(--line)"},
   layout:{topbar:"bar",toolbar:"dock",modal:"sheet",status:"none",list:"none"},
   map:{tile:OSM_TILE,bg:"#e8e4da",tileOpacity:.3,tileFilter:"none",
@@ -908,7 +945,7 @@ const THEMES=[
   card:{cls:"card-t1",grain:true,mapLabel:"DAYMARK 400"},motion:{dur:".3s"}},
  {id:"blackgold",name:"黑金轻奢",category:"夜间",desc:"夜间仪表盘与金色细线",
   palette:{bg:"#0B0B0C",fg:"#F5F1E8",muted:"#8A7F6A",accent:"#C6A15B",onAccent:"#0B0B0C",panel:"#161617",line:"rgba(198,161,91,.25)",icon:"#C6A15B"},
-  typography:{display:'"Cormorant Garamond","Noto Serif SC",Georgia,serif',body:'"Noto Serif SC","Noto Sans SC",system-ui,serif',num:'"Cormorant Garamond",Georgia,serif'},
+  typography:{display:'"Cormorant Garamond","Noto Serif SC",Georgia,serif',body:'"Noto Serif SC","Noto Sans SC",system-ui,serif',num:'"Cormorant Garamond",Georgia,serif',fonts:["cormorant","serifsc"]},
   shape:{radius:"6px",control:"4px",topbarBorder:"1px solid rgba(198,161,91,.45)"},
   layout:{status:"strip"},
   map:{tileOpacity:.5,tileFilter:"invert(.92) hue-rotate(180deg) brightness(.78) contrast(.9) saturate(.5)",
@@ -918,7 +955,7 @@ const THEMES=[
   card:{cls:"card-t2"},motion:{dur:".3s"}},
  {id:"brutalist",name:"瑞士粗野主义",category:"设计",desc:"黑白红硬边网格",
   palette:{bg:"#F4F4F0",fg:"#0A0A09",muted:"#6E6E6A",accent:"#E61919",topbar:"#0A0A09",onTopbar:"#F4F4F0",panel:"#F4F4F0",line:"rgba(10,10,9,.9)"},
-  typography:{display:'"Archivo Black","Noto Sans SC",sans-serif',body:'"Inter Tight","Noto Sans SC",system-ui,sans-serif',num:'"Inter Tight",ui-monospace,monospace',titleSpacing:"-.02em"},
+  typography:{display:'"Archivo Black","Noto Sans SC",sans-serif',body:'"Inter Tight","Noto Sans SC",system-ui,sans-serif',num:'"Inter Tight",ui-monospace,monospace',titleSpacing:"-.02em",fonts:["archivo","intertight","sanssc"]},
   shape:{radius:"0px",control:"0px",pill:"0px",topbarBorder:"4px solid #0A0A09"},
   layout:{topbar:"split",toolbar:"blocks",modal:"dialog"},
   map:{tileOpacity:.3,tileFilter:"grayscale(1) contrast(1.05) brightness(1.12)",
@@ -929,7 +966,7 @@ const THEMES=[
   card:{cls:"card-t3",head:"block",deco:"good day // trip",cta:"TODAY&rsquo;S TRIP →"},motion:{dur:".12s",ease:"linear"}},
  {id:"magazine",name:"星期日杂志海报",category:"设计",desc:"刊头大标题与编辑式目录",
   palette:{bg:"#F3EEE2",fg:"#1A1815",muted:"#6E6757",accent:"#B85A3A",panel:"#FBF8EF",line:"rgba(26,24,21,.2)",icon:"#B85A3A"},
-  typography:{display:'"Playfair Display","Noto Serif SC",Georgia,serif',body:'"Inter","Noto Sans SC",system-ui,sans-serif',num:'"Playfair Display",Georgia,serif'},
+  typography:{display:'"Playfair Display","Noto Serif SC",Georgia,serif',body:'"Inter","Noto Sans SC",system-ui,sans-serif',num:'"Playfair Display",Georgia,serif',fonts:["playfair","inter","sanssc","serifsc"]},
   shape:{radius:"2px",control:"0px",pill:"0px",topbarBorder:"2px solid #1A1815"},
   layout:{topbar:"masthead",list:"strip"},
   map:{tileOpacity:.3,tileFilter:"sepia(.5) saturate(.6) brightness(1.14)",
@@ -940,7 +977,7 @@ const THEMES=[
   card:{cls:"card-t4",head:"cover",deco:"the good day issue"}},
  {id:"ink",name:"新中式水墨",category:"东方",desc:"竖排题签、朱印与卷轴",
   palette:{bg:"#F5F1E8",fg:"#2B2B28",muted:"#8A8578",accent:"#B03A2E",panel:"#FBF8EF",line:"rgba(43,43,40,.18)"},
-  typography:{display:'"Noto Serif SC",serif',body:'"Noto Serif SC","Noto Sans SC",serif',num:'"Cormorant Garamond",serif',titleSpacing:".35em"},
+  typography:{display:'"Noto Serif SC",serif',body:'"Noto Serif SC","Noto Sans SC",serif',num:'"Cormorant Garamond",serif',titleSpacing:".35em",fonts:["serifsc","cormorant"]},
   shape:{radius:"6px",control:"6px",pill:"6px",topbarBorder:"1px solid rgba(43,43,40,.4)"},
   layout:{topbar:"tag",list:"strip"},
   map:{tileOpacity:.28,tileFilter:"grayscale(1) sepia(.3) brightness(1.18)",
@@ -951,7 +988,7 @@ const THEMES=[
   card:{cls:"card-t5",head:"ink",vertical:true},motion:{dur:".4s"}},
  {id:"playful",name:"插画趣味风",category:"趣味",desc:"彩色贴纸与漂浮按钮",
   palette:{bg:"#FEF6EE",fg:"#264653",muted:"#6E8892",accent:"#EF476F",panel:"#FFFFFF",line:"rgba(38,70,83,.14)"},
-  typography:{display:'"Poppins","ZCOOL KuaiLe","Noto Sans SC",sans-serif',body:'"Noto Sans SC",system-ui,sans-serif',num:'"Poppins",ui-monospace,monospace'},
+  typography:{display:'"Poppins","ZCOOL KuaiLe","Noto Sans SC",sans-serif',body:'"Noto Sans SC",system-ui,sans-serif',num:'"Poppins",ui-monospace,monospace',fonts:["poppins","zcool","sanssc"]},
   shape:{radius:"24px",control:"999px"},
   layout:{topbar:"float",toolbar:"bubbles",modal:"dialog"},
   map:{tileOpacity:.32,tileFilter:"saturate(1) brightness(1.1)",
@@ -962,7 +999,7 @@ const THEMES=[
   card:{cls:"card-t6",tape:true},motion:{dur:".35s",ease:"cubic-bezier(.34,1.56,.64,1)"}},
  {id:"minimal",name:"极简主义",category:"设计",desc:"高留白、细线与纯文字按钮",
   palette:{bg:"#FFFFFF",fg:"#111111",muted:"#767676",accent:"#111111",panel:"#FFFFFF",line:"rgba(0,0,0,.12)"},
-  typography:{display:'"Playfair Display","Noto Serif SC",serif',body:'"Noto Sans SC",system-ui,sans-serif',num:'"Playfair Display",serif',titleSpacing:".04em"},
+  typography:{display:'"Playfair Display","Noto Serif SC",serif',body:'"Noto Sans SC",system-ui,sans-serif',num:'"Playfair Display",serif',titleSpacing:".04em",fonts:["playfair","sanssc","serifsc"]},
   shape:{radius:"0px",control:"0px",pill:"0px",topbarBorder:"1px solid rgba(0,0,0,.12)"},
   layout:{toolbar:"text"},
   map:{tileOpacity:.18,tileFilter:"grayscale(1) brightness(1.22)",
@@ -1020,7 +1057,8 @@ function persist(){
     theme:state.theme,
     route:state.route,
     pins:state.pins.map(p=>({id:p.id,lat:p.lat,lng:p.lng,name:p.name,text:p.text,createdAt:p.createdAt,photoId:p.photoId})),
-    recStart:state.recStart
+    recStart:state.recStart,
+    rec:{on:state.recording,paused:state.paused,pausedMs:state.pausedMs,pauseStart:state.pauseStart}
   });
 }
 /* 读取任意版本的存档（v1 无版本号），过滤坏数据；主题 id 失效时回落默认主题 */
@@ -1032,7 +1070,10 @@ function migrateState(s){
     theme:themeById(s.theme).id,
     route:Array.isArray(s.route)?s.route.filter(validPt):[],
     pins:Array.isArray(s.pins)?s.pins.filter(validPt):[],
-    recStart:+s.recStart||0
+    recStart:+s.recStart||0,
+    rec:isObj(s.rec)&&s.rec.on&&+s.recStart
+      ?{on:true,paused:!!s.rec.paused,pausedMs:+s.rec.pausedMs||0,pauseStart:+s.rec.pauseStart||0}
+      :{on:false,paused:false,pausedMs:0,pauseStart:0}
   };
 }
 
@@ -1070,12 +1111,15 @@ function setTiles(th){
   const c=tileLayer.getContainer();
   c.style.opacity=th.map.tileOpacity;c.style.filter=th.map.tileFilter;
 }
+let fontsReady=Promise.resolve();
 function applyTheme(id,redraw=true){
   const th=themeById(id);
   state.theme=th.id;
   const b=document.body,lay=Object.assign({},th.layout,QA?QA.layout:{});
   b.dataset.theme=th.id;b.dataset.topbar=lay.topbar;b.dataset.toolbar=lay.toolbar;b.dataset.modal=lay.modal;b.dataset.status=lay.status;b.dataset.list=lay.list;
   setVars(document.documentElement,themeVars(th));
+  fontsReady=loadFonts(th.typography.fonts);
+  if(!QA){try{localStorage.setItem("daymark_fonts",JSON.stringify(th.typography.fonts));}catch(e){}}
   const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=th.palette.topbar;
   setTiles(th);
   refreshGallery();
@@ -1153,6 +1197,7 @@ function refreshGallery(){
 }
 function openGallery(){
   gallery.origin=state.theme;
+  loadFonts(Array.from(new Set([].concat.apply([],THEMES.map(t=>t.typography.fonts)))).filter(k=>!FONT_CJK[k]));   // 缩略图标题用
   $("themeGallery").classList.add("open");$("themeToggle").setAttribute("aria-expanded","true");
   syncInsets();refreshGallery();
   const cur=document.querySelector(".tg-card.is-current");
@@ -1219,16 +1264,40 @@ function updateRecordUI(){
   $("btnPause").textContent=state.paused?"继续":"暂停";
   updateStatus();
 }
+function beginWatch(){
+  if(state.watchId!==null)return;
+  state.watchId=navigator.geolocation.watchPosition(onGpsPos,onGpsErr,
+    {enableHighAccuracy:true,maximumAge:3000,timeout:15000});
+  keepAwake(true);
+}
+/* 记录中尽量保持屏幕常亮（Screen Wake Lock，不支持的浏览器忽略）；页面回到前台时重新申请 */
+let wakeLock=null;
+async function keepAwake(on){
+  try{
+    if(on&&!wakeLock&&"wakeLock" in navigator&&document.visibilityState==="visible"){
+      wakeLock=await navigator.wakeLock.request("screen");
+      wakeLock.addEventListener("release",()=>{wakeLock=null;});
+    }else if(!on&&wakeLock){const w=wakeLock;wakeLock=null;await w.release();}
+  }catch(e){wakeLock=null;}
+}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&state.recording)keepAwake(true);});
 function startRecord(){
   if(!navigator.geolocation){toast("当前浏览器不支持定位");return;}
   confirmOverwriteIfRoute("开始记录",()=>{
     state.recording=true;state.paused=false;state.pausedMs=0;
     state.recStart=Date.now();
-    state.watchId=navigator.geolocation.watchPosition(onGpsPos,onGpsErr,
-      {enableHighAccuracy:true,maximumAge:3000,timeout:15000});
-    updateRecordUI();
+    beginWatch();
+    updateRecordUI();persist();
     toast("开始记录，祝旅途愉快");
   });
+}
+/* 刷新或重新打开页面时，接着上次没结束的记录（关闭期间的时间计入用时） */
+function resumeSavedRecording(rec){
+  if(!rec||!rec.on||!navigator.geolocation)return;
+  state.recording=true;state.paused=rec.paused;state.pausedMs=rec.pausedMs;state.pauseStart=rec.pauseStart||Date.now();
+  beginWatch();
+  updateRecordUI();persist();   // 初始化时 applyTheme 已按“未记录”写过一次存档，这里写回
+  toast(rec.paused?"上次的记录还没结束（已暂停），点“继续”接着记":"上次的记录还没结束，已继续记录");
 }
 function onGpsPos(pos){
   if(!state.recording||state.paused)return;
@@ -1244,16 +1313,17 @@ function onGpsErr(err){
 function pauseRecord(){
   if(!state.recording||state.paused)return;
   state.paused=true;state.pauseStart=Date.now();
-  updateRecordUI();toast("已暂停");
+  updateRecordUI();persist();toast("已暂停");
 }
 function resumeRecord(){
   if(!state.recording||!state.paused)return;
   state.paused=false;state.pausedMs+=Date.now()-state.pauseStart;
-  updateRecordUI();toast("继续记录");
+  updateRecordUI();persist();toast("继续记录");
 }
 function stopRecord(){
   if(state.watchId!==null){navigator.geolocation.clearWatch(state.watchId);state.watchId=null;}
   state.recording=false;state.paused=false;
+  keepAwake(false);
   updateRecordUI();
   drawRoute();persist();
   const km=(routeDistanceM()/1000).toFixed(2);
@@ -1636,6 +1706,7 @@ async function renderExportPreview(){
   $("previewScale").innerHTML='<div style="padding:40px;text-align:center;color:var(--muted)">正在生成预览…</div>';
   const d=await buildCardData();
   const th=d.th;
+  await fontsReady;
   stageCardEl=document.createElement("div");
   stageCardEl.className="exp-card "+th.card.cls;
   stageCardEl.id="stageCard";
@@ -1664,7 +1735,7 @@ async function doExport(){
   if(!stageCardEl){toast("请先生成预览");return;}
   toast("正在渲染 PNG…");
   try{
-    await document.fonts.ready;
+    await fontsReady;await document.fonts.ready;
     const canvas=await html2canvas(stageCardEl,{useCORS:true,logging:false,backgroundColor:null,scale:1});
     const a=document.createElement("a");
     const t=new Date();
@@ -1765,6 +1836,20 @@ function runThemeChecks(){
       const c=contrast(p[a],p[b]);
       if(c!==null&&c<min)add(t.id,"warn",a+"/"+b+" 对比度 "+c.toFixed(2)+" < "+min);
     });
+    /* 字体：配置里用到的 Google 字体必须列在 typography.fonts，否则不会加载 */
+    const fams=t.typography.fonts.map(k=>{if(!FONT_FAMILIES[k])add(t.id,"error","typography.fonts 未知键："+k);return (FONT_FAMILIES[k]||"").split(":")[0].replace(/\+/g," ");});
+    /* 每个字体栈里，中文与西文各自第一个出现的 Google 字体才会实际用到（后面的只是兜底） */
+    const keyOf={};Object.keys(FONT_FAMILIES).forEach(k=>{keyOf[FONT_FAMILIES[k].split(":")[0].replace(/\+/g," ")]=k;});
+    [t.typography.display,t.typography.body,t.typography.num,mk.font].forEach(stack=>{
+      const seen={cjk:false,latin:false};
+      String(stack).split(",").forEach(f=>{
+        f=f.trim().replace(/^["']|["']$/g,"");
+        const k=keyOf[f];if(!k)return;
+        const kind=FONT_CJK[k]?"cjk":"latin";
+        if(seen[kind])return;seen[kind]=true;
+        if(fams.indexOf(f)<0)add(t.id,"error","用到字体 "+f+" 但未列入 typography.fonts");
+      });
+    });
     [["pin",mk.pin],["se",mk.se]].forEach(([k,o])=>{
       const c=contrast(o.fg,o.bg);if(c!==null&&c<3)add(t.id,"warn","marker."+k+" 对比度 "+c.toFixed(2)+" < 3");
     });
@@ -1773,7 +1858,9 @@ function runThemeChecks(){
   const m1=migrateState({theme:"ink",route:[{lat:1,lng:2,t:0}],pins:[],recStart:5});
   if(!m1||m1.theme!=="ink"||m1.route.length!==1||m1.recStart!==5)add("-","error","v1 存档迁移失败");
   const m2=migrateState({theme:"no-such-theme",route:[{lat:"x"}],pins:null});
-  if(!m2||m2.theme!==THEMES[0].id||m2.route.length||m2.pins.length)add("-","error","异常存档未正确回落");
+  if(!m2||m2.theme!==THEMES[0].id||m2.route.length||m2.pins.length||m2.rec.on)add("-","error","异常存档未正确回落");
+  const m3=migrateState({theme:"ink",route:[],pins:[],recStart:9,rec:{on:true,paused:true,pausedMs:5,pauseStart:7}});
+  if(!m3.rec.on||!m3.rec.paused||m3.rec.pausedMs!==5)add("-","error","v3 进行中记录未正确读取");
   return out;
 }
 /* ================= 事件绑定与初始化 ================= */
@@ -1821,11 +1908,12 @@ function bindEvents(){
 }
 async function init(){
   const sc=QA&&(QA_SCENES[QA.scene]||QA_SCENES.full);
+  let saved=null;
   if(sc){
     state.theme=themeById(QA.theme).id;
     await loadQAFixture(sc);
   }else{
-    const saved=migrateState(store.load());
+    saved=migrateState(store.load());
     if(saved){
       state.theme=saved.theme;
       state.route=saved.route;
@@ -1834,6 +1922,7 @@ async function init(){
     }
     photoStore.open();
   }
+  const pendingRec=!sc&&saved?saved.rec:null;
   $("brandDay").textContent=fmtDate(new Date());
   $("brandWeek").textContent=["周日","周一","周二","周三","周四","周五","周六"][new Date().getDay()];
   buildGallery();
@@ -1844,6 +1933,7 @@ async function init(){
     if(mw)mw.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#999;font-size:14px;padding:40px;text-align:center;line-height:1.8;">地图加载失败（可能是网络问题）<br>GPS 记录与导出功能仍可使用</div>';
   }
   drawRoute();drawPins();updateRecordUI();
+  resumeSavedRecording(pendingRec);
   if(sc)runQA(sc);
 }
 async function runQA(sc){
@@ -1860,7 +1950,7 @@ async function runQA(sc){
   else if(sc.open==="clear")openModal("clearModalMask");
   else if(sc.open==="gallery")openGallery();
   else if(sc.open==="export")await openExport();
-  await document.fonts.ready;
+  await fontsReady;await document.fonts.ready;
   document.documentElement.dataset.qaReady="1";
 }
 document.addEventListener("DOMContentLoaded",init);
